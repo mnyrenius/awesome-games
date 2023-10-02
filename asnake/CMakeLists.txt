@@ -24,7 +24,7 @@ add_executable(${CMAKE_PROJECT_NAME}
   src/level.c
   src/menu.c
   src/player.c
-  src/snake.c
+  src/asnake.c
   src/shader.c
   src/renderer.c
   src/text_renderer.c
@@ -52,3 +52,4 @@ add_shader(text.vs)
 add_shader(text.fs)
 add_shader(title.vs)
 add_shader(title.fs)
+add_shader(wall.fs)
