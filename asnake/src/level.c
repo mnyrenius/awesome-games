@@ -110,15 +110,24 @@ Level_t *Level_Init(int width, int height, int difficulty)
     #include "shaders/generic_object.vs.data"
     , 0
   };
-  const char fs[] =
+  const char fs_wall[] =
   {
     #include "shaders/wall.fs.data"
     , 0
   };
   Shader_t *wall_shader = Shader_Init();
-  Shader_Load(wall_shader, vs, fs);
+  Shader_Load(wall_shader, vs, fs_wall);
 
-  level->food_renderer = Renderer_Init(vertices, sizeof(vertices));
+  const char fs_food[] =
+  {
+    #include "shaders/food.fs.data"
+    , 0
+  };
+
+  Shader_t *food_shader = Shader_Init();
+  Shader_Load(food_shader, vs, fs_food);
+
+  level->food_renderer = Renderer_Init_With_Shader(vertices, sizeof(vertices), food_shader);
   level->wall_renderer = Renderer_Init_With_Shader(vertices, sizeof(vertices), wall_shader);
   level->alpha = 1.0f;
 
