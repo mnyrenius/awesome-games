@@ -80,9 +80,25 @@ static int calc_checksum(Highscores_t *highscores)
   return checksum;
 }
 
+static FILE *open_file(const char *mode)
+{
+  FILE *fp = NULL;
+  char *home = getenv("HOME");
+  if (home)
+  {
+    char *path = malloc(strlen(home) + strlen(HIGHSCORE_FILE) + 2);
+    sprintf(path, "%s/.%s", home, HIGHSCORE_FILE);
+    LOG("Open %s\n", path);
+    fp = fopen(path, mode);
+    free(path);
+  }
+
+  return fp;
+}
+
 static void write_file(Highscores_t *highscores)
 {
-  FILE *fp = fopen(HIGHSCORE_FILE, "wb+");
+  FILE *fp = open_file("wb+");
   if (!fp)
   {
     LOG("Failed to open file: %s\n", HIGHSCORE_FILE);
@@ -129,7 +145,7 @@ Highscores_t *Highscores_Init(void)
 
   highscores->text_renderer = TextRenderer_Init();
 
-  FILE *fp = fopen(HIGHSCORE_FILE, "rb");
+  FILE *fp = open_file("rb");
   bool read_success = false;
   if (fp)
   {
