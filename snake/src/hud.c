@@ -3,6 +3,8 @@
 #include "hud.h"
 #include "text_renderer.h"
 
+#define NOTIFICATION_MAX_LENGTH 16
+
 typedef struct Hud_t
 {
   int score;
@@ -10,6 +12,7 @@ typedef struct Hud_t
   vec2 position;
   vec2 size;
   TextRenderer_t *renderer;
+  char notification[NOTIFICATION_MAX_LENGTH];
 } Hud_t;
 
 Hud_t *Hud_Init(vec2 position, vec2 size)
@@ -35,6 +38,8 @@ void Hud_Update(Hud_t *hud)
   sprintf(str, "Level: %d", hud->level);
   pos[0] = hud->size[0] - 20.0f - strlen(str) * 8 * 2.0f;
   TextRenderer_RenderString(hud->renderer, str, pos, 2.0f);
+  pos[0] = hud->size[0] / 2.0f - strlen(hud->notification) * 8.0f;
+  TextRenderer_RenderString(hud->renderer, hud->notification, pos, 2.0f);
 }
 
 void Hud_SetScore(Hud_t *hud, int score)
@@ -47,3 +52,12 @@ void Hud_SetLevel(Hud_t *hud, int level)
   hud->level = level;
 }
 
+void Hud_SetNotification(Hud_t *hud, const char *notification)
+{
+  strncpy(hud->notification, notification, NOTIFICATION_MAX_LENGTH);
+}
+
+void Hud_ResetNotification(Hud_t *hud)
+{
+  strcpy(hud->notification, "");
+}

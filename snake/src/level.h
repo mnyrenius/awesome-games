@@ -10,6 +10,7 @@ typedef struct Level_Food_t
 {
   vec2 position;
   bool eaten;
+  bool powerup;
 } Level_Food_t;
 
 typedef struct Level_Wall_t
@@ -31,6 +32,7 @@ Level_Objects_t Level_GetObjects(Level_t *level);
 void Level_EatFood(Level_t *level, int index);
 bool Level_IsFinished(Level_t *level);
 void Level_Render(Level_t *level);
+void Level_SetAlpha(Level_t *level, float alpha);
 void Level_Delete(Level_t *level);
 
 #endif /* _LEVEL_H_ */

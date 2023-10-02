@@ -44,43 +44,35 @@ void render_string(unsigned char *framebuffer, const char *str)
 
 TextRenderer_t *TextRenderer_Init(void)
 {
+  Shader_t *shader = Shader_Init();
+  const char vs[] =
+  {
+    #include "shaders/text.vs.data"
+    ,0
+  };
+
+  const char fs[] =
+  {
+    #include "shaders/text.fs.data"
+    ,0
+  };
+  Shader_Load(shader, vs, fs);
+  return TextRenderer_Init_With_Shader(shader);
+}
+
+TextRenderer_t *TextRenderer_Init_With_Shader(Shader_t *shader)
+{
   TextRenderer_t *renderer = malloc(sizeof(TextRenderer_t));
-
-  const char *vs =
-      "#version 330 core\n"
-      "layout (location = 0) in vec4 vertex;\n"
-      "out vec2 TexCoords;\n"
-      "uniform mat4 model;\n"
-      "uniform mat4 projection;\n"
-      "void main()\n"
-      "{\n"
-      "   TexCoords = vertex.zw;\n"
-      "   gl_Position = projection * model * vec4(vertex.xy, 0.0f, 1.0f);\n"
-      "}\n";
-
-  const char *fs =
-      "#version 330 core\n"
-      "in vec2 TexCoords;\n"
-      "out vec3 FragColor;\n"
-      "uniform sampler2D bitmap;\n"
-      "void main()\n"
-      "{\n"
-      "   float c = texture(bitmap, TexCoords).r;\n"
-      "   FragColor = vec3(c, c, c);\n"
-      "}\n";
-
-  renderer->shader = Shader_Init();
-  Shader_Load(renderer->shader, vs, fs);
+  renderer->shader = shader;
 
   float vertices[] = {
-      0.0f, 1.0f,  0.0f, 1.0f,
-      1.0f, 0.0f,  1.0f, 0.0f,
-      0.0f, 0.0f,  0.0f, 0.0f,
+      0.0f, 1.0f, 0.0f, 1.0f,
+      1.0f, 0.0f, 1.0f, 0.0f,
+      0.0f, 0.0f, 0.0f, 0.0f,
 
-      0.0f, 1.0f,  0.0f, 1.0f,
-      1.0f, 1.0f,  1.0f, 1.0f,
-      1.0f, 0.0f,  1.0f, 0.0f
-  };
+      0.0f, 1.0f, 0.0f, 1.0f,
+      1.0f, 1.0f, 1.0f, 1.0f,
+      1.0f, 0.0f, 1.0f, 0.0f};
 
   GLuint vbo;
   glGenVertexArrays(1, &renderer->vao);
@@ -106,6 +98,7 @@ TextRenderer_t *TextRenderer_Init(void)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glBindTexture(GL_TEXTURE_2D, 0);
+  CheckGlErrors();
 
 return renderer;
 }

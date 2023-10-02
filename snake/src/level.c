@@ -17,6 +17,7 @@ typedef struct Level_t
   Renderer_t *food_renderer;
   Renderer_t *wall_renderer;
   int difficulty;
+  float alpha;
 } Level_t;
 
 Level_t *Level_Init(int width, int height, int difficulty)
@@ -62,6 +63,7 @@ Level_t *Level_Init(int width, int height, int difficulty)
       continue;
     }
 
+
     for (int wi = 0; wi < 4; ++wi)
     {
       if (Collison_RectangleToRectangle(level->walls[wi].position, level->walls[wi].size,
@@ -81,6 +83,7 @@ Level_t *Level_Init(int width, int height, int difficulty)
     level->foods[i].position[0] = rand() % width;
     level->foods[i].position[1] = rand() % height;
     level->foods[i].eaten = false;
+    level->foods[i].powerup = (rand() % 10) == 0;
 
     for (int wi = 0; wi < level->num_walls; ++wi)
     {
@@ -93,7 +96,6 @@ Level_t *Level_Init(int width, int height, int difficulty)
     }
   }
 
-
   float vertices[] = {
       0.0f, 1.0f,
       1.0f, 0.0f,
@@ -103,49 +105,9 @@ Level_t *Level_Init(int width, int height, int difficulty)
       1.0f, 1.0f,
       1.0f, 0.0f};
 
-  const char *food_vs =
-      "#version 330 core\n"
-      "layout (location = 0) in vec3 aPos;\n"
-      "uniform mat4 model;\n"
-      "uniform mat4 projection;\n"
-      "void main()\n"
-      "{\n"
-      "   gl_Position = projection * model * vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
-      "}\n";
-
-  const char *food_fs =
-      "#version 330 core\n"
-      "out vec4 FragColor;\n"
-      "void main()\n"
-      "{\n"
-      "FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
-      "}\n";
-
-  const char *wall_vs =
-      "#version 330 core\n"
-      "layout (location = 0) in vec3 aPos;\n"
-      "uniform mat4 model;\n"
-      "uniform mat4 projection;\n"
-      "void main()\n"
-      "{\n"
-      "   gl_Position = projection * model * vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
-      "}\n";
-
-  const char *wall_fs =
-      "#version 330 core\n"
-      "out vec4 FragColor;\n"
-      "void main()\n"
-      "{\n"
-      "FragColor = vec4(0.5f, 0.5f, 0.5f, 1.0f);\n"
-      "}\n";
-
-  Shader_t *food_shader = Shader_Init();
-  Shader_Load(food_shader, food_vs, food_fs);
-  Shader_t *wall_shader = Shader_Init();
-  Shader_Load(wall_shader, wall_vs, wall_fs);
-
-  level->food_renderer = Renderer_Init(vertices, sizeof(vertices), food_shader);
-  level->wall_renderer = Renderer_Init(vertices, sizeof(vertices), wall_shader);
+  level->food_renderer = Renderer_Init(vertices, sizeof(vertices));
+  level->wall_renderer = Renderer_Init(vertices, sizeof(vertices));
+  level->alpha = 1.0f;
 
   return level;
 }
@@ -184,18 +146,29 @@ bool Level_IsFinished(Level_t *level)
 void Level_Render(Level_t *level)
 {
   vec2 food_size = {10.0f, 10.0f};
+  vec4 wall_color = { 0.5f, 0.5f, 0.5f, level->alpha };
+  vec4 food_color = { 1.0f, 0.1f, 0.1f, level->alpha };
+
   for (int i = 0; i < level->num_foods; ++i)
   {
     if(level->foods[i].eaten)
       continue;
 
-    Renderer_RenderObject(level->food_renderer, level->foods[i].position, food_size);
+    if (level->foods[i].powerup)
+      food_color[1] = 0.8f;
+    Renderer_RenderObject(level->food_renderer, level->foods[i].position, food_size, food_color);
+    food_color[1] = 0.1f;
   }
 
   for (int i = 0; i < level->num_walls; ++i)
   {
-    Renderer_RenderObject(level->wall_renderer, level->walls[i].position, level->walls[i].size);
+    Renderer_RenderObject(level->wall_renderer, level->walls[i].position, level->walls[i].size, wall_color);
   }
+}
+
+void Level_SetAlpha(Level_t *level, float alpha)
+{
+  level->alpha = alpha;
 }
 
 void Level_Delete(Level_t *level)

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "shader.h"
 #include "glad/gl.h"
+#include "util.h"
 
 typedef struct Shader_t
 {
@@ -25,7 +26,7 @@ void Shader_Load(Shader_t *shader, const char *vs, const char *fs)
   if (!success)
   {
     glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED: %s\n", infoLog);
+    LOG("Failed to compile vertex shader: %s\n", infoLog);
   }
 
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -35,7 +36,7 @@ void Shader_Load(Shader_t *shader, const char *vs, const char *fs)
   if (!success)
   {
     glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-    printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED: %s\n", infoLog);
+    LOG("Failed to compile fragment shader: %s: \n", infoLog);
   }
 
   shader->shader = glCreateProgram();
@@ -57,6 +58,16 @@ void Shader_SetMatrix4(Shader_t *shader, const char *name, const mat4x4 *mat)
 void Shader_SetVec3(Shader_t *shader, const char *name, const vec3 vec)
 {
   glUniform3f(glGetUniformLocation(shader->shader, name), vec[0], vec[1], vec[2]);
+}
+
+void Shader_SetVec4(Shader_t *shader, const char *name, const vec4 vec)
+{
+  glUniform4f(glGetUniformLocation(shader->shader, name), vec[0], vec[1], vec[2], vec[3]);
+}
+
+void Shader_SetFloat(Shader_t *shader, const char *name, const float value)
+{
+  glUniform1f(glGetUniformLocation(shader->shader, name), value);
 }
 
 void Shader_Use(Shader_t * shader)

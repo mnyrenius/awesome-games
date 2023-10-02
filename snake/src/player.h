@@ -9,8 +9,9 @@ Player_t * Player_Init(void);
 void Player_Update(Player_t * player, float dt);
 void Player_SetVelocity(Player_t * player, vec2 velocity);
 vec2 *Player_GetPosition(Player_t *player);
-void Player_Eat(Player_t *player);
+void Player_Eat(Player_t *player, bool powerup);
 bool Player_IsDead(Player_t *player);
+bool Player_IsInvincible(Player_t *player);
 void Player_Delete(Player_t *player);
 
 #endif /* _PLAYER_H_ */

@@ -11,7 +11,25 @@ typedef struct Renderer_t
   Shader_t *shader;
 } Renderer_t;
 
-Renderer_t *Renderer_Init(float *vertices, int size_vertices, Shader_t *shader)
+Renderer_t *Renderer_Init(float *vertices, int size_vertices)
+{
+  Shader_t *shader = Shader_Init();
+  const char vs[] =
+  {
+    #include "shaders/generic_object.vs.data"
+    ,0
+  };
+
+  const char fs[] =
+  {
+    #include "shaders/generic_object.fs.data"
+    ,0
+  };
+  Shader_Load(shader, vs, fs);
+  return Renderer_Init_With_Shader(vertices, size_vertices, shader);
+}
+
+Renderer_t *Renderer_Init_With_Shader(float *vertices, int size_vertices, Shader_t *shader)
 {
   Renderer_t *renderer = malloc(sizeof(Renderer_t));
   renderer->shader = shader;
@@ -38,7 +56,7 @@ Renderer_t *Renderer_Init(float *vertices, int size_vertices, Shader_t *shader)
   return renderer;
 }
 
-void Renderer_RenderObject(Renderer_t *renderer, vec2 position, vec2 size)
+void Renderer_RenderObject(Renderer_t *renderer, vec2 position, vec2 size, vec4 color)
 {
   Shader_Use(renderer->shader);
   glBindVertexArray(renderer->vao);
@@ -51,6 +69,7 @@ void Renderer_RenderObject(Renderer_t *renderer, vec2 position, vec2 size)
   model[0][0] *= size[0];
   model[1][1] *= size[1];
   Shader_SetMatrix4(renderer->shader, "model", &model);
+  Shader_SetVec4(renderer->shader, "color", color);
   glDrawArrays(GL_TRIANGLES, 0, 6);
 
   glBindVertexArray(0);

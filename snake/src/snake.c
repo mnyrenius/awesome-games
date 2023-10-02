@@ -16,14 +16,8 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  if ((key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) && action == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-
-  else
-  {
-    Game_t * game = glfwGetWindowUserPointer(window);
-    Game_UpdateKeys(game, key, action);
-  }
+  Game_t *game = glfwGetWindowUserPointer(window);
+  Game_UpdateKeys(game, key, action);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -58,6 +52,9 @@ int main()
 
   glViewport(0, 0, WIDTH, HEIGHT);
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   Game_t * game = Game_Init(WIDTH, HEIGHT);
   glfwSetWindowUserPointer(window, game);
 
@@ -75,6 +72,10 @@ int main()
     glfwPollEvents();
 
     Game_Update(game, delta_time);
+    if (Game_IsQuit(game))
+    {
+      glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
 
     glfwSwapBuffers(window);
 
