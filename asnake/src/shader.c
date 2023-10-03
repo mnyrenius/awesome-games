@@ -54,6 +54,10 @@ void Shader_SetMatrix4(Shader_t *shader, const char *name, const mat4x4 *mat)
     (const GLfloat*)mat);
 }
 
+void Shader_SetVec2(Shader_t *shader, const char *name, const vec2 vec)
+{
+  glUniform2f(glGetUniformLocation(shader->shader, name), vec[0], vec[1]);
+}
 
 void Shader_SetVec3(Shader_t *shader, const char *name, const vec3 vec)
 {

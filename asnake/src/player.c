@@ -6,6 +6,7 @@
 #include "glad/gl.h"
 #include "renderer.h"
 #include "collision.h"
+#include "util.h"
 
 #define TAIL_MAX_LEN 2048
 
@@ -17,6 +18,7 @@ typedef struct Player_t
   int tail_length;
   vec2 velocity;
   Renderer_t *renderer;
+  Shader_t *shader;
   bool dead;
   bool invincible;
   float invincible_timer;
@@ -49,7 +51,21 @@ Player_t * Player_Init(void)
       1.0f, 1.0f,
       1.0f, 0.0f};
 
-  player->renderer = Renderer_Init(vertices, sizeof(vertices));
+  const char vs[] =
+  {
+    #include "shaders/generic_object.vs.data"
+    , 0
+  };
+  const char fs[] =
+  {
+    #include "shaders/player.fs.data"
+    , 0
+  };
+  player->shader = Shader_Init();
+  Shader_Load(player->shader, vs, fs);
+
+
+  player->renderer = Renderer_Init_With_Shader(vertices, sizeof(vertices), player->shader);
   player->dead = false;
   player->invincible = false;
   player->invincible_timer = 0.0f;
@@ -92,17 +108,21 @@ void Player_Update(Player_t * player, float dt)
     }
   }
 
-  for (int i = 0; i < player->tail_length; ++i)
+  if (!player->invincible)
   {
-    if (i == player->tail_index)
-      continue;
-    if (Collision_PointToPoint(player->tail[i], new_pos, 0.1f))
+    for (int i = 0; i < player->tail_length; ++i)
     {
-      player->dead = true;
-      player->velocity[0] = 0.0f;
-      player->velocity[1] = 0.0f;
+      if (i == player->tail_index)
+        continue;
+      if (Collision_PointToPoint(player->tail[i], new_pos, 0.1f))
+      {
+        player->dead = true;
+        player->velocity[0] = 0.0f;
+        player->velocity[1] = 0.0f;
+      }
     }
   }
+
   float xdiff = player->position[0] - new_pos[0];
   float ydiff = player->position[1] - new_pos[1];
 
@@ -125,7 +145,8 @@ void Player_Update(Player_t * player, float dt)
   vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
   Renderer_RenderObject(player->renderer, player->position, player_size, color);
-
+  Shader_Use(player->shader);
+  Shader_SetVec2(player->shader, "head_pos", player->position);
   for (int i = 0; i < player->tail_length; ++i)
   {
     if (player->tail[i][0] != -1.0f && player->tail[i][1] != -1.0f)

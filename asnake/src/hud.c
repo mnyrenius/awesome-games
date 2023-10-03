@@ -13,6 +13,7 @@ typedef struct Hud_t
   vec2 size;
   TextRenderer_t *renderer;
   char notification[NOTIFICATION_MAX_LENGTH];
+  float notification_timer;
 } Hud_t;
 
 Hud_t *Hud_Init(vec2 position, vec2 size)
@@ -25,11 +26,12 @@ Hud_t *Hud_Init(vec2 position, vec2 size)
   vec2_dup(hud->size, size);
 
   hud->renderer = TextRenderer_Init();
+  hud->notification_timer = 0.0f;
 
   return hud;
 }
 
-void Hud_Update(Hud_t *hud)
+void Hud_Update(Hud_t *hud, float dt)
 {
   char str[16];
   vec2 pos = { 20.0f, hud->position[1] + 20.0f };
@@ -38,8 +40,17 @@ void Hud_Update(Hud_t *hud)
   sprintf(str, "Level: %d", hud->level);
   pos[0] = hud->size[0] - 20.0f - strlen(str) * 8 * 2.0f;
   TextRenderer_RenderString(hud->renderer, str, pos, 2.0f);
-  pos[0] = hud->size[0] / 2.0f - strlen(hud->notification) * 8.0f;
-  TextRenderer_RenderString(hud->renderer, hud->notification, pos, 2.0f);
+
+  hud->notification_timer += dt;
+  if (hud->notification_timer > 0.5f)
+  {
+    pos[0] = hud->size[0] / 2.0f - strlen(hud->notification) * 8.0f;
+    TextRenderer_RenderString(hud->renderer, hud->notification, pos, 2.0f);
+    if (hud->notification_timer > 1.0f)
+    {
+      hud->notification_timer = 0.0f;
+    }
+  }
 }
 
 void Hud_SetScore(Hud_t *hud, int score)

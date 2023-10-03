@@ -170,22 +170,25 @@ void state_playing(Game_t *game, float dt)
   }
 
   Level_Render(game->level);
+
   if (Player_IsInvincible(game->player))
   {
     Hud_SetNotification(game->hud, "[INVINCIBLE]");
   }
+
   else
   {
     Hud_ResetNotification(game->hud);
   }
-  Hud_Update(game->hud);
+
+  Hud_Update(game->hud, dt);
 }
 
 void state_won(Game_t *game, float dt)
 {
   Player_Update(game->player, dt);
   Level_Render(game->level);
-  Hud_Update(game->hud);
+  Hud_Update(game->hud, dt);
 
   const char *str = "Level Cleared. Press ENTER to continue.";
   vec2 text_pos = {game->width / 2 - strlen(str) * 8, 200.f};
@@ -207,7 +210,7 @@ void state_dead(Game_t *game, float dt)
 {
   Player_Update(game->player, dt);
   Level_Render(game->level);
-  Hud_Update(game->hud);
+  Hud_Update(game->hud, dt);
 
   if (Highscores_CheckScore(game->highscores, game->score))
   {
