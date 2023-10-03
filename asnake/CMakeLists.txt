@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.11)
-project(asnake VERSION 0.0.1 DESCRIPTION "Action Snake")
-
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
@@ -11,11 +9,11 @@ function(add_shader SHADER)
     COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER} | xxd -i > ${CMAKE_CURRENT_BINARY_DIR}/gen/shaders/${SHADER}.data
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER}
   )
-  add_dependencies(${CMAKE_PROJECT_NAME} shader_${SHADER})
+  add_dependencies(asnake shader_${SHADER})
   #set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER})
 endfunction()
 
-add_executable(${CMAKE_PROJECT_NAME}
+add_executable(asnake
   glad/src/gl.c
   src/collision.c
   src/game.c
@@ -32,14 +30,14 @@ add_executable(${CMAKE_PROJECT_NAME}
 )
 
 target_include_directories(
-  ${CMAKE_PROJECT_NAME}
+  asnake
   PRIVATE
   src/
   glad/include/
   ${CMAKE_CURRENT_BINARY_DIR}/gen/
 )
 
-target_link_libraries(${CMAKE_PROJECT_NAME}
+target_link_libraries(asnake
   OpenGL::GL
   glfw
   dl

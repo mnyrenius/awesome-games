@@ -36,7 +36,7 @@ int main()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-  window = glfwCreateWindow(WIDTH, HEIGHT, "Snake", NULL, NULL);
+  window = glfwCreateWindow(WIDTH, HEIGHT, "Action Snake", NULL, NULL);
   if (!window)
   {
     glfwTerminate();
