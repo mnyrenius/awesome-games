@@ -24,7 +24,7 @@ Level_t *Level_Init(int width, int height, int difficulty)
 {
   Level_t *level = malloc(sizeof(Level_t));
 
-  level->num_walls = 4 + difficulty * 2;
+  level->num_walls = 4 + difficulty * 3;
   level->walls = malloc(sizeof(Level_Wall_t) * level->num_walls);
 
   level->walls[0].position[0] = 0.0f;
