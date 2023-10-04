@@ -10,7 +10,7 @@ function(add_shader SHADER)
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER}
   )
   add_dependencies(asnake shader_${SHADER})
-  #set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER})
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER})
 endfunction()
 
 add_executable(asnake
