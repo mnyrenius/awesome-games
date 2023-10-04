@@ -161,10 +161,34 @@ void Player_Update(Player_t * player, float dt)
   }
 }
 
-void Player_SetVelocity(Player_t * player, vec2 velocity)
+void Player_Move(Player_t * player, Player_Movement_t movement)
 {
-  player->velocity[0] = velocity[0];
-  player->velocity[1] = velocity[1];
+  switch (movement)
+  {
+  case PLAYER_MOVEMENT_UP:
+    player->velocity[0] = 0.0f;
+    player->velocity[1] = -100.0f;
+    break;
+  case PLAYER_MOVEMENT_DOWN:
+    player->velocity[0] = 0.0f;
+    player->velocity[1] = 100.0f;
+    break;
+  case PLAYER_MOVEMENT_LEFT:
+    player->velocity[0] = -100.0f;
+    player->velocity[1] = 0.0f;
+    break;
+  case PLAYER_MOVEMENT_RIGHT:
+    player->velocity[0] = 100.0f;
+    player->velocity[1] = 0.0f;
+    break;
+  case PLAYER_MOVEMENT_STOP:
+    player->velocity[0] = 0.0f;
+    player->velocity[1] = 0.0f;
+    break;
+
+  default:
+    break;
+  }
 }
 
 vec2 *Player_GetPosition(Player_t* player)
@@ -186,7 +210,7 @@ void Player_Eat(Player_t *player, bool powerup)
     player->tail[i][1] = -1.0f;
   }
 
-  player->tail_length += 10;
+  player->tail_length += 25;
 }
 
 bool Player_IsDead(Player_t *player)

@@ -75,30 +75,24 @@ void skip_level(Game_t *game)
 
 void state_playing(Game_t *game, float dt)
 {
-  vec2 new_player_velocity = {0.0f, 0.0f};
-
   if (game->keys[GLFW_KEY_UP])
   {
-    new_player_velocity[1] = -100.f;
-    Player_SetVelocity(game->player, new_player_velocity);
+    Player_Move(game->player, PLAYER_MOVEMENT_UP);
   }
 
   else if (game->keys[GLFW_KEY_DOWN])
   {
-    new_player_velocity[1] = 100.f;
-    Player_SetVelocity(game->player, new_player_velocity);
+    Player_Move(game->player, PLAYER_MOVEMENT_DOWN);
   }
 
   else if (game->keys[GLFW_KEY_LEFT])
   {
-    new_player_velocity[0] = -100.f;
-    Player_SetVelocity(game->player, new_player_velocity);
+    Player_Move(game->player, PLAYER_MOVEMENT_LEFT);
   }
 
   else if (game->keys[GLFW_KEY_RIGHT])
   {
-    new_player_velocity[0] = 100.f;
-    Player_SetVelocity(game->player, new_player_velocity);
+    Player_Move(game->player, PLAYER_MOVEMENT_RIGHT);
   }
 
   else if (game->keys[GLFW_KEY_R] && !game->keys_processed[GLFW_KEY_R])
@@ -155,8 +149,7 @@ void state_playing(Game_t *game, float dt)
       Level_Wall_t *w = &level_objects.walls[i];
       if (Collision_PointToRectangle(player_pos, w->position, w->size))
       {
-        vec2 v = {0.0f, 0.0f};
-        Player_SetVelocity(game->player, v);
+        Player_Move(game->player, PLAYER_MOVEMENT_STOP);
         game->state = GAME_STATE_DEAD;
       }
     }
@@ -164,8 +157,7 @@ void state_playing(Game_t *game, float dt)
 
   if (Level_IsFinished(game->level))
   {
-    vec2 v = {0.0f, 0.0f};
-    Player_SetVelocity(game->player, v);
+    Player_Move(game->player, PLAYER_MOVEMENT_STOP);
     game->state = GAME_STATE_WON;
   }
 

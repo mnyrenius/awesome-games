@@ -112,6 +112,11 @@ void Menu_Render(Menu_t *menu)
   text_pos[0] = 400.0f - (strlen(quit) * 8);
   text_pos[1] += 30.0f;
   TextRenderer_RenderString(menu->text_renderer, quit, text_pos, 2.0f);
+
+  const char *author = "Hagaberg Game Studios 2023";
+  text_pos[0] = 400.0f - (strlen(author) * 8.0f / 1.5f);
+  text_pos[1] = 570.0f;
+  TextRenderer_RenderString(menu->text_renderer, author, text_pos, 1.5f);
 }
 
 Menu_Item_t Menu_Get(Menu_t *menu)

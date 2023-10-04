@@ -4,10 +4,18 @@
 #include "linmath.h"
 
 typedef struct Player_t Player_t;
+typedef enum Player_Movement_t
+{
+  PLAYER_MOVEMENT_UP,
+  PLAYER_MOVEMENT_DOWN,
+  PLAYER_MOVEMENT_LEFT,
+  PLAYER_MOVEMENT_RIGHT,
+  PLAYER_MOVEMENT_STOP,
+} Player_Movement_t;
 
 Player_t * Player_Init(void);
 void Player_Update(Player_t * player, float dt);
-void Player_SetVelocity(Player_t * player, vec2 velocity);
+void Player_Move(Player_t * player, Player_Movement_t movement);
 vec2 *Player_GetPosition(Player_t *player);
 void Player_Eat(Player_t *player, bool powerup);
 bool Player_IsDead(Player_t *player);
