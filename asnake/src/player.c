@@ -145,8 +145,13 @@ void Player_Update(Player_t * player, float dt)
   vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
   Renderer_RenderObject(player->renderer, player->position, player_size, color);
+  GLint vp[4];
+  glGetIntegerv(GL_VIEWPORT, (GLint*)&vp);
+  vec2 head_pos = { vp[2]/800.0 * player->position[0], vp[3]/600.0 * player->position[1]};
   Shader_Use(player->shader);
-  Shader_SetVec2(player->shader, "head_pos", player->position);
+  Shader_SetVec2(player->shader, "head_pos", head_pos);
+  vec2 screen_res = { vp[2], vp[3]};
+  Shader_SetVec2(player->shader, "screen_res", screen_res);
   for (int i = 0; i < player->tail_length; ++i)
   {
     if (player->tail[i][0] != -1.0f && player->tail[i][1] != -1.0f)
