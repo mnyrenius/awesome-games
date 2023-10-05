@@ -5,7 +5,6 @@ A couple of mostly not so very awesome games.
 Requirements:
 * CMake
 * C compiler
-* GLFW3
 * xxd
 
 ```
