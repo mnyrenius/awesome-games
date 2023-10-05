@@ -150,9 +150,11 @@ Highscores_t *Highscores_Init(void)
   if (fp)
   {
     int checksum = -1;
-    fread(&checksum, sizeof(int), 1, fp);
-    fread(highscores->scores, sizeof(Highscores_Entry_t), NUM_HIGHSCORES, fp);
-    if (checksum == calc_checksum(highscores))
+    size_t checksum_read = fread(&checksum, sizeof(int), 1, fp);
+    size_t hs_read = fread(highscores->scores, sizeof(Highscores_Entry_t), NUM_HIGHSCORES, fp);
+    if (checksum_read == 1 &&
+        hs_read == NUM_HIGHSCORES &&
+        checksum == calc_checksum(highscores))
     {
       read_success = true;
       LOG("%s\n", "Read highscore file ok");

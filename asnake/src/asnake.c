@@ -48,7 +48,7 @@ int main()
 
   glfwMakeContextCurrent(window);
   gladLoadGL(glfwGetProcAddress);
-  //glfwSwapInterval(0);
+  glfwSwapInterval(1);
 
   glViewport(0, 0, WIDTH, HEIGHT);
 
