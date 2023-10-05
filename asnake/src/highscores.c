@@ -12,6 +12,12 @@
 #define NUM_HIGHSCORES 8
 #define HIGHSCORE_FILE "asnake.dat"
 
+#ifdef __linux__
+#define HOME_ENVVAR "HOME"
+#elif _WIN32
+#define HOME_ENVVAR "USERPROFILE"
+#endif
+
 typedef struct Highscores_Entry_t
 {
   char name[NAME_LENGTH];
@@ -83,7 +89,7 @@ static int calc_checksum(Highscores_t *highscores)
 static FILE *open_file(const char *mode)
 {
   FILE *fp = NULL;
-  char *home = getenv("HOME");
+  char *home = getenv(HOME_ENVVAR);
   if (home)
   {
     char *path = malloc(strlen(home) + strlen(HIGHSCORE_FILE) + 2);
