@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
-find_package(glfw3 3.3 REQUIRED)
-find_package(OpenGL REQUIRED)
+
+include(FetchContent)
+FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG master)
+FetchContent_MakeAvailable(glfw)
 
 function(add_shader SHADER)
 
@@ -12,6 +14,12 @@ function(add_shader SHADER)
   add_dependencies(asnake shader_${SHADER})
   set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER})
 endfunction()
+
+add_compile_options(
+  -Wall -Werror
+  $<$<CONFIG:RELEASE>:-O3>
+  $<$<CONFIG:DEBUG>:-O0>
+)
 
 add_executable(asnake
   glad/src/gl.c
@@ -38,7 +46,6 @@ target_include_directories(
 )
 
 target_link_libraries(asnake
-  OpenGL::GL
   glfw
   dl
   m

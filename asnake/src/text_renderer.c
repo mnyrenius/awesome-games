@@ -18,8 +18,7 @@ void render_character(unsigned char *framebuffer, char c, int x_pos, int line_wi
 {
   int x, y;
   int set;
-  int mask;
-  char *bitmap = font8x8_basic[c];
+  char *bitmap = font8x8_basic[(int)c];
   framebuffer += x_pos;
   for (x = 0; x < 8; x++)
   {

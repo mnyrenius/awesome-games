@@ -65,7 +65,7 @@ void Hud_SetLevel(Hud_t *hud, int level)
 
 void Hud_SetNotification(Hud_t *hud, const char *notification)
 {
-  strncpy(hud->notification, notification, NOTIFICATION_MAX_LENGTH);
+  strncpy(hud->notification, notification, NOTIFICATION_MAX_LENGTH - 1);
 }
 
 void Hud_ResetNotification(Hud_t *hud)
