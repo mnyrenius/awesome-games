@@ -15,6 +15,18 @@ function(add_shader SHADER)
   set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER})
 endfunction()
 
+execute_process(
+  COMMAND git rev-parse --short HEAD
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  OUTPUT_VARIABLE ASNAKE_BUILD
+)
+
+configure_file(
+  src/build_info.h.in
+  gen/build_info.h
+  @ONLY
+)
+
 add_compile_options(
   -Wall -Werror
   $<$<CONFIG:RELEASE>:-O3>

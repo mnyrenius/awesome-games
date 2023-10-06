@@ -1,0 +1,6 @@
+#ifndef _BUILD_INFO_H_
+#define _BUILD_INFO_H
+
+#cmakedefine ASNAKE_BUILD "v. @ASNAKE_BUILD@"
+
+#endif /* _BUILD_INFO_H_ */

@@ -5,6 +5,7 @@
 #include "shader.h"
 #include "math.h"
 #include "util.h"
+#include "build_info.h"
 
 typedef struct Menu_t
 {
@@ -117,6 +118,10 @@ void Menu_Render(Menu_t *menu)
   text_pos[0] = 400.0f - (strlen(author) * 8.0f / 1.5f);
   text_pos[1] = 570.0f;
   TextRenderer_RenderString(menu->text_renderer, author, text_pos, 1.5f);
+
+  text_pos[0] = 0.0f;
+  text_pos[1] = 0.0f;
+  TextRenderer_RenderString(menu->text_renderer, ASNAKE_BUILD, text_pos, 1.0f);
 }
 
 Menu_Item_t Menu_Get(Menu_t *menu)
