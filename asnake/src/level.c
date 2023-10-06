@@ -53,8 +53,8 @@ Level_t *Level_Init(int width, int height, int difficulty)
   {
     level->walls[i].position[0] = rand() % width;
     level->walls[i].position[1] = rand() % 500;
-    level->walls[i].size[0] = (rand() % 200) + 5;
-    level->walls[i].size[1] = (rand() % 100) + 5;
+    level->walls[i].size[0] = (rand() % 200) + 5.0f;
+    level->walls[i].size[1] = (rand() % 100) + 5.0f;
 
 
     if (Collision_PointToRectangle(center, level->walls[i].position, level->walls[i].size))

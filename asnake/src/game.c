@@ -183,7 +183,7 @@ void state_won(Game_t *game, float dt)
   Hud_Update(game->hud, dt);
 
   const char *str = "Level Cleared. Press ENTER to continue.";
-  vec2 text_pos = {game->width / 2 - strlen(str) * 8, 200.f};
+  vec2 text_pos = {game->width / 2.0f - strlen(str) * 8.0f, 200.f};
   TextRenderer_RenderString(game->text, str, text_pos, 2.0f);
 
   if (game->keys[GLFW_KEY_ENTER])
@@ -207,14 +207,14 @@ void state_dead(Game_t *game, float dt)
   if (Highscores_CheckScore(game->highscores, game->score))
   {
     const char *str = "NEW HIGH SCORE! Press ENTER to proceed";
-    vec2 text_pos = {game->width / 2 - strlen(str) * 8, 200.f};
+    vec2 text_pos = {game->width / 2.0f - strlen(str) * 8.0f, 200.f};
     TextRenderer_RenderString(game->text, str, text_pos, 2.0f);
   }
 
   else
   {
     const char *str = "You died. Pess ENTER to try again.";
-    vec2 text_pos = {game->width / 2 - strlen(str) * 8, 200.f};
+    vec2 text_pos = {game->width / 2.0f - strlen(str) * 8.0f, 200.f};
     TextRenderer_RenderString(game->text, str, text_pos, 2.0f);
   }
 

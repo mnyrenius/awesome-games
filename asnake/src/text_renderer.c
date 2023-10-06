@@ -14,29 +14,29 @@ typedef struct TextRenderer_t
   Shader_t *shader;
 } TextRenderer_t;
 
-void render_character(unsigned char *framebuffer, char c, int x_pos, int line_width)
+void render_character(unsigned char *buffer, char c, int x_pos, int line_width)
 {
   int x, y;
   int set;
   char *bitmap = font8x8_basic[(int)c];
-  framebuffer += x_pos;
+  buffer += x_pos;
   for (x = 0; x < 8; x++)
   {
     for (y = 0; y < 8; y++)
     {
       set = bitmap[x] & 1 << y;
-      *(framebuffer++) = set ? 0xff : 0x00;
+      *(buffer++) = set ? 0xff : 0x00;
     }
-    framebuffer += line_width - 8;
+    buffer += line_width - 8;
   }
 }
 
-void render_string(unsigned char *framebuffer, const char *str)
+void render_string(unsigned char *buffer, const char *str)
 {
   int x_pos = 0;
   for (int i = 0; i < strlen(str); ++i)
   {
-    render_character(framebuffer, str[i], x_pos, strlen(str) * 8);
+    render_character(buffer, str[i], x_pos, strlen(str) * 8);
     x_pos += 8;
   }
 }

@@ -197,10 +197,10 @@ void Highscores_Render(Highscores_t *highscores)
   vec2 size = { 400.0f, 200.0f };
   vec4 color = { 1.0f, 1.0f, 1.0f, 0.1f };
   Renderer_RenderObject(highscores->renderer, pos, size, color);
-  pos[0] += 5;
-  pos[1] += 5;
-  size[0] -= 10;
-  size[1] -= 10;
+  pos[0] += 5.0f;
+  pos[1] += 5.0f;
+  size[0] -= 10.0f;
+  size[1] -= 10.0f;
   color[0] = 1.0f;
   color[1] = 0.2f;
   color[2] = 0.0f;
@@ -208,7 +208,7 @@ void Highscores_Render(Highscores_t *highscores)
 
   vec2 text_pos;
   static const char *title = "HIGH SCORES";
-  text_pos[0] = 400.0f - strlen(title) * 8 * 8 / 2;
+  text_pos[0] = 400.0f - strlen(title) * 8.0f * 8.0f / 2.0f;
   text_pos[1] = 100.0f;
   Shader_Use(highscores->title_shader);
   Shader_SetFloat(highscores->title_shader, "time", (1.0f + sin(highscores->counter += 0.01f))/2.5f);

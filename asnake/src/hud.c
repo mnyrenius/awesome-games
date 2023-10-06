@@ -38,7 +38,7 @@ void Hud_Update(Hud_t *hud, float dt)
   sprintf(str, "Score: %d", hud->score);
   TextRenderer_RenderString(hud->renderer, str, pos, 2.0f);
   sprintf(str, "Level: %d", hud->level);
-  pos[0] = hud->size[0] - 20.0f - strlen(str) * 8 * 2.0f;
+  pos[0] = hud->size[0] - 20.0f - strlen(str) * 8.0f * 2.0f;
   TextRenderer_RenderString(hud->renderer, str, pos, 2.0f);
 
   hud->notification_timer += dt;

@@ -84,10 +84,10 @@ void Menu_Render(Menu_t *menu)
   vec2 size = { 400.0f, 200.0f };
   vec4 color = { 1.0f, 1.0f, 1.0f, 0.1f };
   Renderer_RenderObject(menu->renderer, pos, size, color);
-  pos[0] += 5;
-  pos[1] += 5;
-  size[0] -= 10;
-  size[1] -= 10;
+  pos[0] += 5.0f;
+  pos[1] += 5.0f;
+  size[0] -= 10.0f;
+  size[1] -= 10.0f;
   color[0] = 1.0f;
   color[1] = 0.2f;
   color[2] = 0.0f;
@@ -95,7 +95,7 @@ void Menu_Render(Menu_t *menu)
 
   vec2 text_pos;
   const char *title = "ACTION SNAKE";
-  text_pos[0] = 400.0f - strlen(title) * 8 * 8 / 2;
+  text_pos[0] = 400.0f - strlen(title) * 8.0f * 8.0f / 2.0f;
   text_pos[1] = 100.0f;
   Shader_Use(menu->title_shader);
   Shader_SetFloat(menu->title_shader, "time", (1.0f + sin(menu->counter += 0.01f))/2.5f);
@@ -104,13 +104,13 @@ void Menu_Render(Menu_t *menu)
   const char *play = menu->item == MENU_ITEM_PLAY ?             "[PLAY GAME]" :  "PLAY GAME";
   const char *highscores = menu->item == MENU_ITEM_HIGHSCORES ? "[HIGH SCORES]" : "HIGH SCORES";
   const char *quit = menu->item == MENU_ITEM_QUIT ?             "[QUIT]" :    "QUIT";
-  text_pos[0] = 400.0f - (strlen(play) * 8);
+  text_pos[0] = 400.0f - (strlen(play) * 8.0f);
   text_pos[1] = 310.0f;
   TextRenderer_RenderString(menu->text_renderer, play, text_pos, 2.0f);
-  text_pos[0] = 400.0f - (strlen(highscores) * 8);
+  text_pos[0] = 400.0f - (strlen(highscores) * 8.0f);
   text_pos[1] += 30.0f;
   TextRenderer_RenderString(menu->text_renderer, highscores, text_pos, 2.0f);
-  text_pos[0] = 400.0f - (strlen(quit) * 8);
+  text_pos[0] = 400.0f - (strlen(quit) * 8.0f);
   text_pos[1] += 30.0f;
   TextRenderer_RenderString(menu->text_renderer, quit, text_pos, 2.0f);
 
