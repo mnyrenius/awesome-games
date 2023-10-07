@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
 include(../lib/cmake/shader.cmake)
-include(FetchContent)
-FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG master)
-FetchContent_MakeAvailable(glfw)
 
 execute_process(
   COMMAND git rev-parse --short HEAD
@@ -15,12 +12,6 @@ configure_file(
   src/build_info.h.in
   gen/build_info.h
   @ONLY
-)
-
-add_compile_options(
-  -Wall -Werror
-  $<$<CONFIG:RELEASE>:-O3>
-  $<$<CONFIG:DEBUG>:-O0>
 )
 
 add_executable(asnake
@@ -44,6 +35,7 @@ target_link_libraries(asnake
   aglib
   glfw
   m
+  ${CMAKE_DL_LIBS}
 )
 
 add_shader(asnake title.vs)

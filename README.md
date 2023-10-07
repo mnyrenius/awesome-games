@@ -1,10 +1,11 @@
 # awesome-games
 A couple of mostly not so very awesome games.
 
-## Build 'em
+## Build 'em (linux)
 Requirements:
 * CMake
 * C compiler
+* GLFW3
 * xxd
 
 ```
