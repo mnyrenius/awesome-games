@@ -15,6 +15,8 @@ add_compile_options(
   $<$<CONFIG:DEBUG>:-O0>
 )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_subdirectory(lib)
 add_subdirectory(asnake)
 add_subdirectory(next)

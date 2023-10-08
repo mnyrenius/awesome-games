@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 include(cmake/shader.cmake)
 
 add_library(aglib OBJECT
-  glad/src/gl.c
+  3pp/glad/src/gl.c
   src/collision.c
   src/renderer.c
   src/shader.c
@@ -11,8 +11,9 @@ add_library(aglib OBJECT
 )
 
 target_include_directories(aglib PUBLIC
-  src
-  glad/include
+  .
+  3pp
+  3pp/glad/include
   ${CMAKE_CURRENT_BINARY_DIR}/gen
 )
 
