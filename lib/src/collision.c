@@ -32,7 +32,6 @@ bool Collison_RectangleToRectangle(vec2 a, vec2 a_size, vec2 b, vec2 b_size)
   if (((a[0] + a_size[0]) >= b[0]) && (a[0] <= (b[0] + b_size[0])) &&
          ((a[1] + a_size[1]) >= b[1]) && (a[1] <= (b[1] + b_size[1])))
          {
-          LOG("%s", "Collision\n");
           result = true;
          }
 

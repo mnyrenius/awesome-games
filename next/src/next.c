@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "game.h"
 #include "util.h"
+#include "global.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -59,16 +60,14 @@ int main()
   glfwSetWindowUserPointer(window, game);
 
   float delta_time = 0.0f;
-  float last_frame = 0.0f;
   float fps_time = 0.0f;
   int fps_counter = 0;
 
   while (!glfwWindowShouldClose(window))
   {
     glClear(GL_COLOR_BUFFER_BIT);
-    double now = glfwGetTime();
-    delta_time = now - last_frame;
-    last_frame = now;
+    Global_Time_Update();
+    delta_time = Global_Time.dt;
     glfwPollEvents();
 
     Game_Update(game, delta_time);

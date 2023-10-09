@@ -69,9 +69,14 @@ void Shader_SetVec4(Shader_t *shader, const char *name, const vec4 vec)
   glUniform4f(glGetUniformLocation(shader->shader, name), vec[0], vec[1], vec[2], vec[3]);
 }
 
-void Shader_SetFloat(Shader_t *shader, const char *name, const float value)
+void Shader_SetFloat(Shader_t *shader, const char *name, const f32 value)
 {
   glUniform1f(glGetUniformLocation(shader->shader, name), value);
+}
+
+void Shader_SetUint(Shader_t *shader, const char *name, const u32 value)
+{
+  glUniform1i(glGetUniformLocation(shader->shader, name), value);
 }
 
 void Shader_Use(Shader_t * shader)
