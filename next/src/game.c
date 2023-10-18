@@ -18,6 +18,23 @@ typedef struct Game_t
   Level_t *level;
 } Game_t;
 
+char *collision_direction_to_string(Collision_Direction_t direction)
+{
+  switch (direction)
+  {
+  case COLLISION_DIRECTION_UP:
+    return "Up";
+  case COLLISION_DIRECTION_DOWN:
+    return "Down";
+  case COLLISION_DIRECTION_LEFT:
+    return "Left";
+  case COLLISION_DIRECTION_RIGHT:
+    return "Right";
+  default:
+    return "Unknown";
+  }
+}
+
 Game_t * Game_Init(unsigned int width, unsigned int height)
 {
   Game_t *game = malloc(sizeof(Game_t));
@@ -68,7 +85,7 @@ void Game_Update(Game_t * game, float dt)
 
   if (!game->player_at_ground)
   {
-    game->player.velocity[1] += 300.0f * dt;
+    game->player.velocity[1] += 400.0f * dt;
     game->player.position[1] += game->player.velocity[1] * dt;
   }
 
@@ -78,20 +95,36 @@ void Game_Update(Game_t * game, float dt)
 
   for (u32 i = 0; i < level_objs.num_quads; ++i)
   {
-    if (Collison_RectangleToRectangle(game->player.position, game->player.size, level_objs.quads[i].position, level_objs.quads[i].size))
+    Player_t *p = &game->player;
+    Level_Quad_t *q = &level_objs.quads[i];
+    Collision_Result_t collision_result = Collison_RectangleToRectangle(p->position, p->size, q->position, q->size);
+    if (collision_result.collision)
     {
-      //game->player.position[1] = level_objs.quads[i].position[1] - game->player.size[1];
       collision = true;
+      LOG("Direction: %s\n", collision_direction_to_string(collision_result.direction));
+      if (collision_result.direction == COLLISION_DIRECTION_DOWN)
+      {
+        game->player.velocity[1] = 0.0f;
+        game->player.position[1] = q->position[1] - p->size[1];
+        game->player_at_ground = true;
+        game->player_max_jump = false;
+      }
+      else if (collision_result.direction == COLLISION_DIRECTION_UP)
+      {
+        game->player.velocity[1] = -game->player.velocity[1] * 0.8f;
+      }
+      else if (collision_result.direction == COLLISION_DIRECTION_LEFT)
+      {
+        game->player.position[0] = q->position[0] + q->size[0];
+      }
+      else if (collision_result.direction == COLLISION_DIRECTION_RIGHT)
+      {
+        game->player.position[0] = q->position[0] - p->size[0];
+      }
     }
   }
 
-  if (collision)
-  {
-    game->player_at_ground = true;
-    game->player.velocity[1] = 0.0f;
-    game->player_max_jump = false;
-  }
-  else
+  if (!collision)
   {
     game->player_at_ground = false;
   }
@@ -118,4 +151,3 @@ bool Game_IsQuit(Game_t *game)
 {
   return false;
 }
-

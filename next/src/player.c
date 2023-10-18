@@ -67,8 +67,6 @@ Player_t Player_Init(void)
 
 void Player_Update(Player_t *player)
 {
-  LOG("vel.x: %f vel.y: %f\n", player->velocity[0], player->velocity[1]);
-
   if (player->velocity[0] > -0.1f && player->velocity[0] < 0.1f && player->velocity[1] > -0.1f && player->velocity[1] < 0.1f)
   {
     if (player->last_vel_x > 0.0f)

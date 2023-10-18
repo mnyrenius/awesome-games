@@ -21,7 +21,7 @@ Level_t *Level_Init(void)
   level->quads[0].size[1] = 50.0f;
 
   level->quads[1].position[0] = 350.0f;
-  level->quads[1].position[1] = 500.0f;
+  level->quads[1].position[1] = 530.0f;
   level->quads[1].size[0] = 50.0f;
   level->quads[1].size[1] = 20.0f;
 
