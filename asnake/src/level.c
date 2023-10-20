@@ -67,7 +67,7 @@ Level_t *Level_Init(int width, int height, int difficulty)
     for (int wi = 0; wi < 4; ++wi)
     {
       if (Collison_RectangleToRectangle(level->walls[wi].position, level->walls[wi].size,
-                                        level->walls[i].position, level->walls[i].size))
+                                        level->walls[i].position, level->walls[i].size).collision)
       {
         i--;
         break;

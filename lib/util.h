@@ -1,5 +1,4 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#pragma once
 
 #include <stdio.h>
 
@@ -12,5 +11,3 @@ void check_gl_errors(const char *file, int line);
 #define CheckGlErrors()
 #define LOG(fmt, ...)
 #endif
-
-#endif /* _UTIL_H_ */

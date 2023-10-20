@@ -1,5 +1,4 @@
-#ifndef _SHADER_H_
-#define _SHADER_H_
+#pragma once
 
 #include "linmath.h"
 #include "types.h"
@@ -16,5 +15,3 @@ void Shader_SetFloat(Shader_t *shader, const char *name, const f32 value);
 void Shader_SetUint(Shader_t *shader, const char *name, const u32 value);
 void Shader_Use(Shader_t *shader);
 void Shader_Delete(Shader_t *shader);
-
-#endif /* _SHADER_H_ */

@@ -18,6 +18,6 @@ typedef struct Level_Objects_t
 } Level_Objects_t;
 
 Level_t *Level_Init(void);
-void Level_Update(Level_t *level);
+void Level_Update(Level_t *level, vec2 player_pos);
 Level_Objects_t Level_GetObjects(Level_t *level);
 void Level_Delete(Level_t *level);

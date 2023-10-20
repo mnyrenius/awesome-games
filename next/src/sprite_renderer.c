@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include "glad/gl.h"
 #include "sprite_renderer.h"
@@ -62,7 +63,7 @@ SpriteRenderer_t *SpriteRenderer_Init(void)
   return renderer;
 }
 
-void SpriteRenderer_RenderObject(SpriteRenderer_t *renderer, Texture_t *texture, vec2 position, vec2 size, vec4 color)
+void SpriteRenderer_RenderObject(SpriteRenderer_t *renderer, Texture_t *texture, vec2 position, vec2 size, bool flip)
 {
   mat4x4 model;
   mat4x4_identity(model);
@@ -74,7 +75,7 @@ void SpriteRenderer_RenderObject(SpriteRenderer_t *renderer, Texture_t *texture,
 
   Shader_Use(renderer->shader);
   Shader_SetMatrix4(renderer->shader, "model", &model);
-  Shader_SetVec4(renderer->shader, "spriteColor", color);
+  Shader_SetUint(renderer->shader, "flip_x", flip);
   Shader_SetFloat(renderer->shader, "time", Global_Time.now);
   Shader_SetUint(renderer->shader, "num_sprites", Texture_GetNumSprites(texture));
 
@@ -88,6 +89,14 @@ void SpriteRenderer_RenderObject(SpriteRenderer_t *renderer, Texture_t *texture,
   CheckGlErrors();
   glBindVertexArray(0);
   CheckGlErrors();
+}
+
+void SpriteRenderer_UpdateOrtho(SpriteRenderer_t *renderer, vec2 view)
+{
+  mat4x4 projection;
+  mat4x4_ortho(projection, view[0], view[0] + 800.0f, view[1] + 600.0f, view[1], -1.0f, 1.0f);
+  Shader_Use(renderer->shader);
+  Shader_SetMatrix4(renderer->shader, "projection", &projection);
 }
 
 void SpriteRenderer_Delete(SpriteRenderer_t *renderer)

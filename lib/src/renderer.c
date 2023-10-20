@@ -76,6 +76,14 @@ void Renderer_RenderObject(Renderer_t *renderer, vec2 position, vec2 size, vec4 
   CheckGlErrors();
 }
 
+void Renderer_UpdateOrtho(Renderer_t *renderer, vec2 view)
+{
+  mat4x4 projection;
+  mat4x4_ortho(projection, view[0], view[0] + 800.0f, view[1] + 600.0f, view[1], -1.0f, 1.0f);
+  Shader_Use(renderer->shader);
+  Shader_SetMatrix4(renderer->shader, "projection", &projection);
+}
+
 void Renderer_Delete(Renderer_t *renderer)
 {
   Shader_Delete(renderer->shader);

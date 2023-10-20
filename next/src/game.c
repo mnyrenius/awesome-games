@@ -7,6 +7,7 @@
 #include "global.h"
 #include "collision.h"
 #include "util.h"
+#include "time.h"
 
 typedef struct Game_t
 {
@@ -37,6 +38,7 @@ char *collision_direction_to_string(Collision_Direction_t direction)
 
 Game_t * Game_Init(unsigned int width, unsigned int height)
 {
+  srand(time(NULL));
   Game_t *game = malloc(sizeof(Game_t));
   memset(game->keys, 0, sizeof(game->keys) / sizeof(game->keys[0]));
   memset(game->keys_processed, 0, sizeof(game->keys_processed) / sizeof(game->keys_processed[0]));
@@ -69,10 +71,10 @@ void Game_Update(Game_t * game, float dt)
 
     if (!game->player_max_jump)
     {
-      game->player.velocity[1] += -30.0f;
+      game->player.velocity[1] += -50.0f;
     }
 
-    if (game->player.velocity[1] < -200.f)
+    if (game->player.velocity[1] < -250.f)
     {
       game->player_max_jump = true;
     }
@@ -85,7 +87,7 @@ void Game_Update(Game_t * game, float dt)
 
   if (!game->player_at_ground)
   {
-    game->player.velocity[1] += 400.0f * dt;
+    game->player.velocity[1] += 500.0f * dt;
     game->player.position[1] += game->player.velocity[1] * dt;
   }
 
@@ -101,7 +103,6 @@ void Game_Update(Game_t * game, float dt)
     if (collision_result.collision)
     {
       collision = true;
-      LOG("Direction: %s\n", collision_direction_to_string(collision_result.direction));
       if (collision_result.direction == COLLISION_DIRECTION_DOWN)
       {
         game->player.velocity[1] = 0.0f;
@@ -130,7 +131,7 @@ void Game_Update(Game_t * game, float dt)
   }
 
   Player_Update(&game->player);
-  Level_Update(game->level);
+  Level_Update(game->level, game->player.position);
 }
 
 void Game_UpdateKeys(Game_t * game, int key, int action)

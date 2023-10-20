@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
+#pragma once
+
 #include "types.h"
 
 typedef struct Global_Time_t

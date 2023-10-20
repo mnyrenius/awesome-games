@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include "level.h"
 #include "renderer.h"
+#include "util.h"
+#include "global.h"
 
 typedef struct Level_t
 {
@@ -12,23 +14,29 @@ typedef struct Level_t
 Level_t *Level_Init(void)
 {
   Level_t *level = malloc(sizeof(Level_t));
-  level->num_quads = 3;
+  level->num_quads = 50;
   level->quads = malloc(sizeof(Level_Quad_t) * level->num_quads);
+
+  float y = 500.0f;
 
   level->quads[0].position[0] = 0.0f;
   level->quads[0].position[1] = 550.0f;
   level->quads[0].size[0] = 800.0f;
   level->quads[0].size[1] = 50.0f;
 
-  level->quads[1].position[0] = 350.0f;
-  level->quads[1].position[1] = 530.0f;
-  level->quads[1].size[0] = 50.0f;
-  level->quads[1].size[1] = 20.0f;
+  for (u32 i = 1; i < level->num_quads; ++i)
+  {
+    if (i % 4 == 0)
+    {
+      y -= 70.0f;
+    }
 
-  level->quads[2].position[0] = 400.0f;
-  level->quads[2].position[1] = 470.0f;
-  level->quads[2].size[0] = 100.0f;
-  level->quads[2].size[1] = 20.0f;
+    level->quads[i].position[0] = rand() % 700;
+    level->quads[i].position[1] = y;
+    level->quads[i].size[0] = 30.0f;
+    level->quads[i].size[1] = 20.0f;
+    LOG("Quad at %f, %f\n", level->quads[i].position[0], level->quads[i].position[1]);
+  }
 
   float vertices[] = {
       0.0f, 1.0f,
@@ -44,12 +52,21 @@ Level_t *Level_Init(void)
   return level;
 }
 
-void Level_Update(Level_t *level)
+void Level_Update(Level_t *level, vec2 player_pos)
 {
   for (u32 i = 0; i < level->num_quads; ++i)
   {
     Renderer_RenderObject(level->quad_renderer, level->quads[i].position, level->quads[i].size, (vec4){1.0f, 1.0f, 1.0f, 1.0f});
   }
+
+  vec2 view = {0.0f, 0.0f};
+
+  if (player_pos[1] < 300.0f)
+  {
+    view[1] = player_pos[1] - 300.0f;
+  }
+
+  Renderer_UpdateOrtho(level->quad_renderer, view);
 }
 
 Level_Objects_t Level_GetObjects(Level_t *level)
