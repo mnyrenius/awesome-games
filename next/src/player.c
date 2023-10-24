@@ -92,7 +92,8 @@ void Player_Update(Player_t *player)
     player->internal->state = PLAYER_STATE_RUNNING;
   }
 
-  SpriteRenderer_RenderObject(player->internal->renderer, player->internal->textures[player->internal->state], player->position, player->size, flip);
+  vec2 uv = {0.0f, 0.0f};
+  SpriteRenderer_RenderObject(player->internal->renderer, player->internal->textures[player->internal->state], player->position, player->size, uv, flip);
 
   vec2 view = {0.0f, 0.0f};
 

@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include "glad/gl.h"
 #include "sprite_renderer.h"
@@ -8,9 +9,18 @@
 #include "global.h"
 #include "texture.h"
 
+#define MAX_VERTICES 1024
+
+typedef struct SpriteRenderer_Vertex_t
+{
+  vec2 xy;
+  vec2 uv;
+} SpriteRenderer_Vertex_t;
+
 typedef struct SpriteRenderer_t
 {
   GLuint vao;
+  GLuint vbo;
   GLuint textureId;
   Shader_t *shader;
 } SpriteRenderer_t;
@@ -32,25 +42,20 @@ SpriteRenderer_t *SpriteRenderer_Init(void)
   };
   Shader_Load(renderer->shader, vs, fs);
 
-  float vertices[] = {
-      0.0f, 1.0f, 0.0f, 1.0f,
-      1.0f, 0.0f, 1.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 0.0f,
-
-      0.0f, 1.0f, 0.0f, 1.0f,
-      1.0f, 1.0f, 1.0f, 1.0f,
-      1.0f, 0.0f, 1.0f, 0.0f};
-
-  GLuint vbo;
   glGenVertexArrays(1, &renderer->vao);
-  glGenBuffers(1, &vbo);
+  glGenBuffers(1, &renderer->vbo);
 
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, renderer->vbo);
+  glBufferData(GL_ARRAY_BUFFER, MAX_VERTICES * sizeof(SpriteRenderer_Vertex_t), 0, GL_DYNAMIC_DRAW);
 
   glBindVertexArray(renderer->vao);
+
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteRenderer_Vertex_t), (void *)offsetof(SpriteRenderer_Vertex_t, xy));
+
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteRenderer_Vertex_t), (void *)offsetof(SpriteRenderer_Vertex_t, uv));
+
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
   CheckGlErrors();
@@ -63,25 +68,30 @@ SpriteRenderer_t *SpriteRenderer_Init(void)
   return renderer;
 }
 
-void SpriteRenderer_RenderObject(SpriteRenderer_t *renderer, Texture_t *texture, vec2 position, vec2 size, bool flip)
+void SpriteRenderer_RenderObject(SpriteRenderer_t *renderer, Texture_t *texture, vec2 position, vec2 size, vec2 uv, bool flip)
 {
-  mat4x4 model;
-  mat4x4_identity(model);
-  mat4x4_translate(model, position[0], position[1], 0.0f);
-  mat4x4 scale;
-  mat4x4_identity(scale);
-  model[0][0] *= size[0];
-  model[1][1] *= size[1];
+  f32 tw = (f32) Texture_GetWidth(texture)/Texture_GetNumSprites(texture);
+  f32 th = (f32) Texture_GetHeight(texture);
+
+  SpriteRenderer_Vertex_t vertices[] =
+  {
+    {{position[0], position[1] + size[1]}, {uv[0]/tw, (uv[1] + size[1])/th}},
+    {{position[0] + size[0], position[1]}, {(uv[0] + size[0])/tw, uv[1]/th}},
+    {{position[0], position[1]}, {uv[0]/tw, uv[1]/th}},
+    {{position[0], position[1] + size[1]}, {uv[0]/tw, (uv[1] + size[1])/th}},
+    {{position[0] + size[0], position[1] + size[1]}, {(uv[0] + size[0])/tw, (uv[1] + size[1])/th}},
+    {{position[0] + size[0], position[1]}, {(uv[0] + size[0])/tw, uv[1]/th}},
+  };
 
   Shader_Use(renderer->shader);
-  Shader_SetMatrix4(renderer->shader, "model", &model);
   Shader_SetUint(renderer->shader, "flip_x", flip);
   Shader_SetFloat(renderer->shader, "time", Global_Time.now);
   Shader_SetUint(renderer->shader, "num_sprites", Texture_GetNumSprites(texture));
 
   Texture_Use(texture);
   CheckGlErrors();
-
+  glBindBuffer(GL_ARRAY_BUFFER, renderer->vbo);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(SpriteRenderer_Vertex_t), vertices);
   glBindVertexArray(renderer->vao);
   CheckGlErrors();
 

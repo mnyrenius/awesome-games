@@ -8,6 +8,8 @@ typedef struct Texture_t
 {
   GLuint id;
   u32 num_sprites;
+  u32 width;
+  u32 height;
 } Texture_t;
 
 Texture_t *Texture_Init(u8 *texture_data, u32 len, u32 num_sprites)
@@ -15,13 +17,13 @@ Texture_t *Texture_Init(u8 *texture_data, u32 len, u32 num_sprites)
   Texture_t *texture = malloc(sizeof(Texture_t));
   texture->num_sprites = num_sprites;
 
-  int width, height, no_channels;
-  u8 *data = stbi_load_from_memory(texture_data, len, &width, &height, &no_channels, 0);
+  int no_channels;
+  u8 *data = stbi_load_from_memory(texture_data, len, (int*)&texture->width, (int*)&texture->height, &no_channels, 0);
   (void) no_channels;
 
   glGenTextures(1, &texture->id);
   glBindTexture(GL_TEXTURE_2D, texture->id);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
   free(data);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -42,4 +44,14 @@ void Texture_Use(Texture_t *texture)
 u32 Texture_GetNumSprites(Texture_t *texture)
 {
   return texture->num_sprites;
+}
+
+u32 Texture_GetWidth(Texture_t *texture)
+{
+  return texture->width;
+}
+
+u32 Texture_GetHeight(Texture_t *texture)
+{
+  return texture->height;
 }
