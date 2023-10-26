@@ -94,11 +94,21 @@ void Game_Update(Game_t * game, float dt)
   game->player.position[0] += game->player.velocity[0] * dt;
 
   bool collision = false;
-
   for (u32 i = 0; i < level_objs.num_quads; ++i)
   {
     Player_t *p = &game->player;
     Level_Quad_t *q = &level_objs.quads[i];
+
+    if ((p->position[1] + p->size[1]) < q->position[1])
+    {
+      continue;
+    }
+
+    if (p->position[1] > (q->position[1] + q->size[1]))
+    {
+      break;
+    }
+
     Collision_Result_t collision_result = Collison_RectangleToRectangle(p->position, p->size, q->position, q->size);
     if (collision_result.collision)
     {
@@ -113,6 +123,7 @@ void Game_Update(Game_t * game, float dt)
       else if (collision_result.direction == COLLISION_DIRECTION_UP)
       {
         game->player.velocity[1] = -game->player.velocity[1] * 0.8f;
+        game->player_max_jump = true;
       }
       else if (collision_result.direction == COLLISION_DIRECTION_LEFT)
       {
@@ -122,6 +133,7 @@ void Game_Update(Game_t * game, float dt)
       {
         game->player.position[0] = q->position[0] - p->size[0];
       }
+      break;
     }
   }
 
