@@ -95,16 +95,23 @@ void Player_Update(Player_t *player)
   vec2 uv = {0.0f, 0.0f};
   SpriteRenderer_RenderObject(player->internal->renderer, player->internal->textures[player->internal->state], player->position, player->size, uv, flip);
 
-  vec2 view = {0.0f, 0.0f};
+  vec2 view = {0.0f, 0.0f - Global_Time.now * 10.0f};
 
   if (player->position[1] < 300.0f)
   {
-    view[1] = player->position[1] - 300.0f;
+    view[1] = player->position[1] - 300.0f - Global_Time.now * 10.0f;
   }
   SpriteRenderer_UpdateOrtho(player->internal->renderer, view);
 }
 
 void Player_Delete(Player_t *player)
 {
+  SpriteRenderer_Delete(player->internal->renderer);
 
+  for (u32 i = 0; i < PLAYER_STATE_END; ++i)
+  {
+    Texture_Delete(player->internal->textures[i]);
+  }
+
+  free(player->internal);
 }

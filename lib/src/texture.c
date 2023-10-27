@@ -55,3 +55,8 @@ u32 Texture_GetHeight(Texture_t *texture)
 {
   return texture->height;
 }
+
+void Texture_Delete(Texture_t *texture)
+{
+  glDeleteTextures(1, &texture->id);
+}

@@ -112,5 +112,7 @@ void SpriteRenderer_UpdateOrtho(SpriteRenderer_t *renderer, vec2 view)
 void SpriteRenderer_Delete(SpriteRenderer_t *renderer)
 {
   Shader_Delete(renderer->shader);
+  glDeleteBuffers(1, &renderer->vbo);
+  glDeleteVertexArrays(1, &renderer->vao);
   free(renderer);
 }

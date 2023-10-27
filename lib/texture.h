@@ -9,3 +9,4 @@ void Texture_Use(Texture_t *texture);
 u32 Texture_GetNumSprites(Texture_t *texture);
 u32 Texture_GetWidth(Texture_t *texture);
 u32 Texture_GetHeight(Texture_t *texture);
+void Texture_Delete(Texture_t *texture);

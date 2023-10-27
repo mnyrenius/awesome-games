@@ -8,15 +8,26 @@
 #include "collision.h"
 #include "util.h"
 #include "time.h"
+#include "text_renderer.h"
+
+typedef enum Game_State_t
+{
+  GAME_STATE_PLAYING,
+  GAME_STATE_DEAD
+} Game_State_t;
 
 typedef struct Game_t
 {
+  u32 width;
+  u32 height;
   bool keys[512];
   bool keys_processed[512];
   Player_t player;
   bool player_at_ground;
   bool player_max_jump;
   Level_t *level;
+  Game_State_t state;
+  TextRenderer_t *text_renderer;
 } Game_t;
 
 char *collision_direction_to_string(Collision_Direction_t direction)
@@ -36,20 +47,7 @@ char *collision_direction_to_string(Collision_Direction_t direction)
   }
 }
 
-Game_t * Game_Init(unsigned int width, unsigned int height)
-{
-  srand(time(NULL));
-  Game_t *game = malloc(sizeof(Game_t));
-  memset(game->keys, 0, sizeof(game->keys) / sizeof(game->keys[0]));
-  memset(game->keys_processed, 0, sizeof(game->keys_processed) / sizeof(game->keys_processed[0]));
-  game->player = Player_Init();
-  game->player_at_ground = false;
-  game->player_max_jump = false;
-  game->level = Level_Init();
-  return game;
-}
-
-void Game_Update(Game_t * game, float dt)
+void state_playing(Game_t *game, float dt)
 {
   Level_Objects_t level_objs = Level_GetObjects(game->level);
 
@@ -144,6 +142,65 @@ void Game_Update(Game_t * game, float dt)
 
   Player_Update(&game->player);
   Level_Update(game->level, game->player.position);
+
+  if (game->player.position[1] > (600.0f - game->player.size[1])- Global_Time.now * 10.0f)
+  {
+    game->state = GAME_STATE_DEAD;
+  }
+}
+
+void state_dead(Game_t *game, float dt)
+{
+  game->player.velocity[0] = 0.0f;
+  game->player.velocity[1] = 0.0f;
+  Player_Update(&game->player);
+  Level_Update(game->level, game->player.position);
+
+  char *text = "YOU DIED.";
+  TextRenderer_RenderString(game->text_renderer, text, (vec2){400.0f - strlen(text) * 8.0f * 2, 300.0f}, 4.0f);
+
+  if (game->keys[GLFW_KEY_ENTER])
+  {
+    Level_Delete(game->level);
+    Player_Delete(&game->player);
+    game->player = Player_Init();
+    game->player_at_ground = false;
+    game->player_max_jump = false;
+    game->level = Level_Init();
+    game->state = GAME_STATE_PLAYING;
+  }
+}
+
+Game_t * Game_Init(unsigned int width, unsigned int height)
+{
+  srand(time(NULL));
+  Game_t *game = malloc(sizeof(Game_t));
+  memset(game->keys, 0, sizeof(game->keys) / sizeof(game->keys[0]));
+  memset(game->keys_processed, 0, sizeof(game->keys_processed) / sizeof(game->keys_processed[0]));
+  game->player = Player_Init();
+  game->player_at_ground = false;
+  game->player_max_jump = false;
+  game->level = Level_Init();
+  game->state = GAME_STATE_PLAYING;
+  game->text_renderer = TextRenderer_Init();
+  return game;
+}
+
+void Game_Update(Game_t * game, float dt)
+{
+  switch (game->state)
+  {
+  case GAME_STATE_PLAYING:
+    state_playing(game, dt);
+    break;
+
+  case GAME_STATE_DEAD:
+    state_dead(game, dt);
+    break;
+
+  default:
+    break;
+  }
 }
 
 void Game_UpdateKeys(Game_t * game, int key, int action)

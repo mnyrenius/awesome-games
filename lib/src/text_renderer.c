@@ -10,6 +10,7 @@
 typedef struct TextRenderer_t
 {
   GLuint vao;
+  GLuint vbo;
   GLuint textureId;
   Shader_t *shader;
 } TextRenderer_t;
@@ -73,11 +74,10 @@ TextRenderer_t *TextRenderer_Init_With_Shader(Shader_t *shader)
       1.0f, 1.0f, 1.0f, 1.0f,
       1.0f, 0.0f, 1.0f, 0.0f};
 
-  GLuint vbo;
   glGenVertexArrays(1, &renderer->vao);
-  glGenBuffers(1, &vbo);
+  glGenBuffers(1, &renderer->vbo);
 
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, renderer->vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   glBindVertexArray(renderer->vao);
@@ -137,4 +137,12 @@ void TextRenderer_RenderString(TextRenderer_t *renderer, const char *str, vec2 p
   glBindTexture(GL_TEXTURE_2D, 0);
   CheckGlErrors();
   free(buffer);
+}
+
+
+void TextRenderer_Delete(TextRenderer_t *renderer)
+{
+  Shader_Delete(renderer->shader);
+  glDeleteBuffers(1, &renderer->vbo);
+  glDeleteVertexArrays(1, &renderer->vao);
 }

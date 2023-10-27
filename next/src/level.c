@@ -73,11 +73,11 @@ void Level_Update(Level_t *level, vec2 player_pos)
     }
   }
 
-  vec2 view = {0.0f, 0.0f};
+  vec2 view = {0.0f, 0.0f - Global_Time.now * 10.0f};
 
   if (player_pos[1] < 300.0f)
   {
-    view[1] = player_pos[1] - 300.0f;
+    view[1] = player_pos[1] - 300.0f - Global_Time.now * 10.0f;
   }
 
   SpriteRenderer_UpdateOrtho(level->renderer, view);
@@ -95,5 +95,7 @@ Level_Objects_t Level_GetObjects(Level_t *level)
 void Level_Delete(Level_t *level)
 {
   SpriteRenderer_Delete(level->renderer);
+  free(level->quads);
   free(level);
+  Texture_Delete(level->terrain_texture);
 }
