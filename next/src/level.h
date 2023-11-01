@@ -15,6 +15,7 @@ typedef struct Level_Objects_t
 {
   Level_Quad_t *quads;
   u32 num_quads;
+  Level_Quad_t *flag;
 } Level_Objects_t;
 
 Level_t *Level_Init(void);

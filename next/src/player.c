@@ -38,14 +38,12 @@ Player_t Player_Init(void)
   internal->textures[PLAYER_STATE_FALLING] = Texture_Init(&Virtual_Guy_Fall_32x32_png, Virtual_Guy_Fall_32x32_png_len, 1);
   internal->at_ground = false;
 
-  return (Player_t)
-  {
-    .position = {400.0f, 500.0f},
-    .size = {32.0f, 32.0f},
-    .velocity = {0.0f, 0.0f},
-    .last_vel_x = 1.0f,
-    .internal = internal
-  };
+  return (Player_t){
+      .position = {400.0f, 500.0f},
+      .size = {32.0f, 32.0f},
+      .velocity = {0.0f, 0.0f},
+      .last_vel_x = 1.0f,
+      .internal = internal};
 }
 
 void Player_Update(Player_t *player)
@@ -95,11 +93,11 @@ void Player_Update(Player_t *player)
   vec2 uv = {0.0f, 0.0f};
   SpriteRenderer_RenderObject(player->internal->renderer, player->internal->textures[player->internal->state], player->position, player->size, uv, flip);
 
-  vec2 view = {0.0f, 0.0f - Global_Time.now * 10.0f};
+  vec2 view = {0.0f, 0.0f};
 
   if (player->position[1] < 300.0f)
   {
-    view[1] = player->position[1] - 300.0f - Global_Time.now * 10.0f;
+    view[1] = player->position[1] - 300.0f;
   }
   SpriteRenderer_UpdateOrtho(player->internal->renderer, view);
 }

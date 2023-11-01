@@ -2,7 +2,6 @@
 #include "level.h"
 #include "renderer.h"
 #include "util.h"
-#include "global.h"
 #include "sprites.h"
 #include "sprite_renderer.h"
 #include "texture.h"
@@ -11,8 +10,10 @@ typedef struct Level_t
 {
   Level_Quad_t *quads;
   u32 num_quads;
+  Level_Quad_t flag;
   SpriteRenderer_t *renderer;
   Texture_t *terrain_texture;
+  Texture_t *flag_texture;
 
 } Level_t;
 
@@ -44,9 +45,13 @@ Level_t *Level_Init(void)
     level->quads[i].size[0] = 32.0f;
     level->quads[i].size[1] = 32.0f;
   }
+  level->flag.position[0] = level->quads[30].position[0] - 16.0f / 2;
+  level->flag.position[1] = level->quads[30].position[1] - 64.0f;
+  vec2_dup(level->flag.size, (vec2){64.0f, 64.0f});
 
   level->renderer = SpriteRenderer_Init();
   level->terrain_texture = Texture_Init(&Terrain_16x16_png, Terrain_16x16_png_len, 1);
+  level->flag_texture = Texture_Init(&Flag_Idle_64x64_png, Flag_Idle_64x64_png_len, 10);
 
   return level;
 }
@@ -63,7 +68,7 @@ void Level_Update(Level_t *level, vec2 player_pos)
   }
 
   uv[0] = 208.0f;
-  uv[1] =  79.0f;
+  uv[1] = 79.0f;
   for (u32 i = 25; i < level->num_quads; ++i)
   {
     Level_Quad_t *q = &level->quads[i];
@@ -73,11 +78,13 @@ void Level_Update(Level_t *level, vec2 player_pos)
     }
   }
 
-  vec2 view = {0.0f, 0.0f - Global_Time.now * 10.0f};
+  SpriteRenderer_RenderObject(level->renderer, level->flag_texture, level->flag.position, level->flag.size, (vec2){0.0f, 0.0f}, false);
+
+  vec2 view = {0.0f, 0.0f};
 
   if (player_pos[1] < 300.0f)
   {
-    view[1] = player_pos[1] - 300.0f - Global_Time.now * 10.0f;
+    view[1] = player_pos[1] - 300.0f;
   }
 
   SpriteRenderer_UpdateOrtho(level->renderer, view);
@@ -85,10 +92,10 @@ void Level_Update(Level_t *level, vec2 player_pos)
 
 Level_Objects_t Level_GetObjects(Level_t *level)
 {
-  return (Level_Objects_t)
-  {
-    .num_quads = level->num_quads,
-    .quads = level->quads
+  return (Level_Objects_t){
+      .num_quads = level->num_quads,
+      .quads = level->quads,
+      .flag = &level->flag,
   };
 }
 

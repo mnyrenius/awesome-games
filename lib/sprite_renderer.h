@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "linmath.h"
 
 typedef struct SpriteRenderer_t SpriteRenderer_t;

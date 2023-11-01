@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include "game.h"
 #include "sprite_renderer.h"
 #include <GLFW/glfw3.h>
@@ -13,7 +14,7 @@
 typedef enum Game_State_t
 {
   GAME_STATE_PLAYING,
-  GAME_STATE_DEAD
+  GAME_STATE_WON,
 } Game_State_t;
 
 typedef struct Game_t
@@ -26,6 +27,7 @@ typedef struct Game_t
   bool player_at_ground;
   bool player_max_jump;
   Level_t *level;
+  u32 level_no;
   Game_State_t state;
   TextRenderer_t *text_renderer;
 } Game_t;
@@ -91,6 +93,9 @@ void state_playing(Game_t *game, float dt)
 
   game->player.position[0] += game->player.velocity[0] * dt;
 
+  Player_Update(&game->player);
+  Level_Update(game->level, game->player.position);
+
   bool collision = false;
   for (u32 i = 0; i < level_objs.num_quads; ++i)
   {
@@ -140,23 +145,28 @@ void state_playing(Game_t *game, float dt)
     game->player_at_ground = false;
   }
 
-  Player_Update(&game->player);
-  Level_Update(game->level, game->player.position);
+  vec2 corrected_flag_pos, corrected_flag_size;
+  corrected_flag_pos[0] = level_objs.flag->position[0] + 32.0f;
+  corrected_flag_pos[1] = level_objs.flag->position[1] + 32.0f;
+  corrected_flag_size[0] = level_objs.flag->size[0] / 2;
+  corrected_flag_size[1] = level_objs.flag->size[1] / 2;
+  Collision_Result_t flag_collision = Collison_RectangleToRectangle(game->player.position, game->player.size,
+                                                                    corrected_flag_pos, corrected_flag_size);
 
-  if (game->player.position[1] > (600.0f - game->player.size[1])- Global_Time.now * 10.0f)
+  if (flag_collision.collision)
   {
-    game->state = GAME_STATE_DEAD;
+    game->state = GAME_STATE_WON;
   }
 }
 
-void state_dead(Game_t *game, float dt)
+void state_won(Game_t *game, float dt)
 {
   game->player.velocity[0] = 0.0f;
   game->player.velocity[1] = 0.0f;
   Player_Update(&game->player);
   Level_Update(game->level, game->player.position);
 
-  char *text = "YOU DIED.";
+  char *text = "LEVEL CLEARED.";
   TextRenderer_RenderString(game->text_renderer, text, (vec2){400.0f - strlen(text) * 8.0f * 2, 300.0f}, 4.0f);
 
   if (game->keys[GLFW_KEY_ENTER])
@@ -171,7 +181,7 @@ void state_dead(Game_t *game, float dt)
   }
 }
 
-Game_t * Game_Init(unsigned int width, unsigned int height)
+Game_t *Game_Init(unsigned int width, unsigned int height)
 {
   srand(time(NULL));
   Game_t *game = malloc(sizeof(Game_t));
@@ -181,12 +191,13 @@ Game_t * Game_Init(unsigned int width, unsigned int height)
   game->player_at_ground = false;
   game->player_max_jump = false;
   game->level = Level_Init();
+  game->level_no = 0;
   game->state = GAME_STATE_PLAYING;
   game->text_renderer = TextRenderer_Init();
   return game;
 }
 
-void Game_Update(Game_t * game, float dt)
+void Game_Update(Game_t *game, float dt)
 {
   switch (game->state)
   {
@@ -194,8 +205,8 @@ void Game_Update(Game_t * game, float dt)
     state_playing(game, dt);
     break;
 
-  case GAME_STATE_DEAD:
-    state_dead(game, dt);
+  case GAME_STATE_WON:
+    state_won(game, dt);
     break;
 
   default:
@@ -203,7 +214,7 @@ void Game_Update(Game_t * game, float dt)
   }
 }
 
-void Game_UpdateKeys(Game_t * game, int key, int action)
+void Game_UpdateKeys(Game_t *game, int key, int action)
 {
   if (action == GLFW_PRESS)
   {
