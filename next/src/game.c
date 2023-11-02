@@ -10,6 +10,7 @@
 #include "util.h"
 #include "time.h"
 #include "text_renderer.h"
+#include "hud.h"
 
 typedef enum Game_State_t
 {
@@ -30,6 +31,8 @@ typedef struct Game_t
   u32 level_no;
   Game_State_t state;
   TextRenderer_t *text_renderer;
+  Hud_t *hud;
+  float time;
 } Game_t;
 
 char *collision_direction_to_string(Collision_Direction_t direction)
@@ -47,6 +50,20 @@ char *collision_direction_to_string(Collision_Direction_t direction)
   default:
     return "Unknown";
   }
+}
+
+void reset_game(Game_t *game, u32 level)
+{
+  game->level_no = level;
+  srand(game->level_no * 1234);
+  memset(game->keys, 0, sizeof(game->keys) / sizeof(game->keys[0]));
+  memset(game->keys_processed, 0, sizeof(game->keys_processed) / sizeof(game->keys_processed[0]));
+  game->player = Player_Init();
+  game->player_at_ground = false;
+  game->player_max_jump = false;
+  game->level = Level_Init();
+  game->state = GAME_STATE_PLAYING;
+  game->time = 0;
 }
 
 void state_playing(Game_t *game, float dt)
@@ -95,6 +112,7 @@ void state_playing(Game_t *game, float dt)
 
   Player_Update(&game->player);
   Level_Update(game->level, game->player.position);
+  Hud_Update(game->hud, dt);
 
   bool collision = false;
   for (u32 i = 0; i < level_objs.num_quads; ++i)
@@ -157,6 +175,9 @@ void state_playing(Game_t *game, float dt)
   {
     game->state = GAME_STATE_WON;
   }
+
+  game->time += dt;
+  Hud_SetTime(game->hud, game->time);
 }
 
 void state_won(Game_t *game, float dt)
@@ -165,6 +186,7 @@ void state_won(Game_t *game, float dt)
   game->player.velocity[1] = 0.0f;
   Player_Update(&game->player);
   Level_Update(game->level, game->player.position);
+  Hud_Update(game->hud, dt);
 
   char *text = "LEVEL CLEARED.";
   TextRenderer_RenderString(game->text_renderer, text, (vec2){400.0f - strlen(text) * 8.0f * 2, 300.0f}, 4.0f);
@@ -173,27 +195,17 @@ void state_won(Game_t *game, float dt)
   {
     Level_Delete(game->level);
     Player_Delete(&game->player);
-    game->player = Player_Init();
-    game->player_at_ground = false;
-    game->player_max_jump = false;
-    game->level = Level_Init();
-    game->state = GAME_STATE_PLAYING;
+    reset_game(game, game->level_no++);
+    Hud_SetLevel(game->hud, game->level_no);
   }
 }
 
 Game_t *Game_Init(unsigned int width, unsigned int height)
 {
-  srand(time(NULL));
   Game_t *game = malloc(sizeof(Game_t));
-  memset(game->keys, 0, sizeof(game->keys) / sizeof(game->keys[0]));
-  memset(game->keys_processed, 0, sizeof(game->keys_processed) / sizeof(game->keys_processed[0]));
-  game->player = Player_Init();
-  game->player_at_ground = false;
-  game->player_max_jump = false;
-  game->level = Level_Init();
-  game->level_no = 0;
-  game->state = GAME_STATE_PLAYING;
+  game->hud = Hud_Init((vec2){0.0f, 550.0f}, (vec2){800.0f, 50.0f});
   game->text_renderer = TextRenderer_Init();
+  reset_game(game, 0);
   return game;
 }
 

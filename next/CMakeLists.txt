@@ -4,6 +4,7 @@ include(../lib/cmake/shader.cmake)
 
 add_executable(next
   src/game.c
+  src/hud.c
   src/level.c
   src/next.c
   src/player.c
