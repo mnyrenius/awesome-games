@@ -18,4 +18,4 @@ typedef struct Collision_Result_t
 
 bool Collision_PointToPoint(vec2 a, vec2 b, float margin);
 bool Collision_PointToRectangle(vec2 a, vec2 b, vec2 b_size);
-Collision_Result_t Collison_RectangleToRectangle(vec2 a, vec2 a_size, vec2 b, vec2 b_size);
+Collision_Result_t Collision_RectangleToRectangle(vec2 a, vec2 a_size, vec2 b, vec2 b_size);

@@ -37,9 +37,9 @@ float clamp(float value, float min, float max)
   return fmax(min, fmin(value, max));
 }
 
-Collision_Result_t Collison_RectangleToRectangle(vec2 a, vec2 a_size, vec2 b, vec2 b_size)
+Collision_Result_t Collision_RectangleToRectangle(vec2 a, vec2 a_size, vec2 b, vec2 b_size)
 {
-  Collision_Result_t result = { .collision = false, .direction = COLLISION_DIRECTION_UP };
+  Collision_Result_t result = {.collision = false, .direction = COLLISION_DIRECTION_UP};
   vec2 a_mid = {a[0] + a_size[0] / 2.0f, a[1] + a_size[1] / 2.0f};
   vec2 b_mid = {b[0] + b_size[0] / 2.0f, b[1] + b_size[1] / 2.0f};
   vec2 difference;
@@ -54,8 +54,8 @@ Collision_Result_t Collison_RectangleToRectangle(vec2 a, vec2 a_size, vec2 b, ve
   {
     vec2 compass[] =
         {
-            {0.0f, -1.0f},  // up
-            {0.0f, 1.0f}, // down
+            {0.0f, -1.0f}, // up
+            {0.0f, 1.0f},  // down
             {-1.0f, 0.0f}, // left
             {1.0f, 0.0f},  // right
         };

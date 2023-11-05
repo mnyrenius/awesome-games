@@ -33,6 +33,7 @@ typedef struct Game_t
   TextRenderer_t *text_renderer;
   Hud_t *hud;
   float time;
+  int score;
 } Game_t;
 
 char *collision_direction_to_string(Collision_Direction_t direction)
@@ -54,7 +55,7 @@ char *collision_direction_to_string(Collision_Direction_t direction)
 
 void reset_game(Game_t *game)
 {
-  srand(game->level_no * 1234);
+  srand(game->level_no * 1234 + 5678);
   memset(game->keys, 0, sizeof(game->keys) / sizeof(game->keys[0]));
   memset(game->keys_processed, 0, sizeof(game->keys_processed) / sizeof(game->keys_processed[0]));
   game->player = Player_Init();
@@ -63,6 +64,7 @@ void reset_game(Game_t *game)
   game->level = Level_Init();
   game->state = GAME_STATE_PLAYING;
   game->time = 0;
+  game->score = 0;
 }
 
 void state_playing(Game_t *game, float dt)
@@ -109,6 +111,19 @@ void state_playing(Game_t *game, float dt)
 
   game->player.position[0] += game->player.velocity[0] * dt;
 
+  vec2 corrected_flag_pos, corrected_flag_size;
+  corrected_flag_pos[0] = level_objs.flag->position[0] + 32.0f;
+  corrected_flag_pos[1] = level_objs.flag->position[1] + 32.0f;
+  corrected_flag_size[0] = level_objs.flag->size[0] / 2;
+  corrected_flag_size[1] = level_objs.flag->size[1] / 2;
+  Collision_Result_t flag_collision = Collision_RectangleToRectangle(game->player.position, game->player.size,
+                                                                     corrected_flag_pos, corrected_flag_size);
+  if (flag_collision.collision)
+  {
+    game->state = GAME_STATE_WON;
+    return;
+  }
+
   bool collision = false;
   for (u32 i = 0; i < level_objs.num_quads; ++i)
   {
@@ -125,7 +140,7 @@ void state_playing(Game_t *game, float dt)
       break;
     }
 
-    Collision_Result_t collision_result = Collison_RectangleToRectangle(p->position, p->size, q->position, q->size);
+    Collision_Result_t collision_result = Collision_RectangleToRectangle(p->position, p->size, q->position, q->size);
     if (collision_result.collision)
     {
       collision = true;
@@ -158,17 +173,34 @@ void state_playing(Game_t *game, float dt)
     game->player_at_ground = false;
   }
 
-  vec2 corrected_flag_pos, corrected_flag_size;
-  corrected_flag_pos[0] = level_objs.flag->position[0] + 32.0f;
-  corrected_flag_pos[1] = level_objs.flag->position[1] + 32.0f;
-  corrected_flag_size[0] = level_objs.flag->size[0] / 2;
-  corrected_flag_size[1] = level_objs.flag->size[1] / 2;
-  Collision_Result_t flag_collision = Collison_RectangleToRectangle(game->player.position, game->player.size,
-                                                                    corrected_flag_pos, corrected_flag_size);
-
-  if (flag_collision.collision)
+  for (u32 i = 0; i < level_objs.num_fruits; ++i)
   {
-    game->state = GAME_STATE_WON;
+    Player_t *p = &game->player;
+    Level_Fruit_t *q = &level_objs.fruits[i];
+
+    if (q->taken)
+    {
+      continue;
+    }
+
+    /*
+    if ((p->position[1] + p->size[1]) < q->position[1])
+    {
+      continue;
+    }
+
+    if (p->position[1] > (q->position[1] + q->size[1]))
+    {
+      break;
+    }
+    */
+    Collision_Result_t collision_result = Collision_RectangleToRectangle(p->position, p->size, q->quad.position, q->quad.size);
+    if (collision_result.collision)
+    {
+      q->taken = true;
+      game->score += 10;
+      Hud_SetScore(game->hud, game->score);
+    }
   }
 
   game->time += dt;

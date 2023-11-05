@@ -47,7 +47,7 @@ Level_t *Level_Init(int width, int height, int difficulty)
   level->walls[3].size[0] = width;
   level->walls[3].size[1] = 10.0f;
 
-  vec2 center = { 400.0f, 300.f };
+  vec2 center = {400.0f, 300.f};
 
   for (int i = 4; i < level->num_walls; ++i)
   {
@@ -56,18 +56,17 @@ Level_t *Level_Init(int width, int height, int difficulty)
     level->walls[i].size[0] = (rand() % 200) + 5.0f;
     level->walls[i].size[1] = (rand() % 100) + 5.0f;
 
-
     if (Collision_PointToRectangle(center, level->walls[i].position, level->walls[i].size))
     {
       i--;
       continue;
     }
 
-
     for (int wi = 0; wi < 4; ++wi)
     {
-      if (Collison_RectangleToRectangle(level->walls[wi].position, level->walls[wi].size,
-                                        level->walls[i].position, level->walls[i].size).collision)
+      if (Collision_RectangleToRectangle(level->walls[wi].position, level->walls[wi].size,
+                                         level->walls[i].position, level->walls[i].size)
+              .collision)
       {
         i--;
         break;
@@ -106,23 +105,20 @@ Level_t *Level_Init(int width, int height, int difficulty)
       1.0f, 0.0f};
 
   const char vs[] =
-  {
-    #include "shaders/generic_object.vs.data"
-    , 0
-  };
+      {
+#include "shaders/generic_object.vs.data"
+          , 0};
   const char fs_wall[] =
-  {
-    #include "shaders/wall.fs.data"
-    , 0
-  };
+      {
+#include "shaders/wall.fs.data"
+          , 0};
   Shader_t *wall_shader = Shader_Init();
   Shader_Load(wall_shader, vs, fs_wall);
 
   const char fs_food[] =
-  {
-    #include "shaders/food.fs.data"
-    , 0
-  };
+      {
+#include "shaders/food.fs.data"
+          , 0};
 
   Shader_t *food_shader = Shader_Init();
   Shader_Load(food_shader, vs, fs_food);
@@ -137,12 +133,12 @@ Level_t *Level_Init(int width, int height, int difficulty)
 Level_Objects_t Level_GetObjects(Level_t *level)
 {
   Level_Objects_t objects =
-  {
-    .foods = level->foods,
-    .num_foods = level->num_foods,
-    .walls = level->walls,
-    .num_walls = level->num_walls,
-  };
+      {
+          .foods = level->foods,
+          .num_foods = level->num_foods,
+          .walls = level->walls,
+          .num_walls = level->num_walls,
+      };
 
   return objects;
 }
@@ -168,12 +164,12 @@ bool Level_IsFinished(Level_t *level)
 void Level_Render(Level_t *level)
 {
   vec2 food_size = {10.0f, 10.0f};
-  vec4 wall_color = { 0.5f, 0.5f, 0.5f, level->alpha };
-  vec4 food_color = { 1.0f, 0.1f, 0.1f, level->alpha };
+  vec4 wall_color = {0.5f, 0.5f, 0.5f, level->alpha};
+  vec4 food_color = {1.0f, 0.1f, 0.1f, level->alpha};
 
   for (int i = 0; i < level->num_foods; ++i)
   {
-    if(level->foods[i].eaten)
+    if (level->foods[i].eaten)
       continue;
 
     if (level->foods[i].powerup)
