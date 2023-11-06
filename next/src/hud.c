@@ -43,7 +43,10 @@ void Hud_Update(Hud_t *hud, float dt)
   sprintf(str, "Score: %d", hud->score);
   pos[1] += 16.0f;
   TextRenderer_RenderString(hud->renderer, str, pos, 1.5f);
-  sprintf(str, "Time: %.2f", hud->time);
+  u32 mins = hud->time / 60.0f;
+  f32 secs = fmod(hud->time, 60);
+  u32 hundreds = (secs - floor(secs)) * 100;
+  sprintf(str, "Time: %02u:%02u:%02u", mins, (u32)secs, hundreds);
   pos[1] += 16.0f;
   TextRenderer_RenderString(hud->renderer, str, pos, 1.5f);
 
