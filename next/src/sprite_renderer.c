@@ -30,16 +30,14 @@ SpriteRenderer_t *SpriteRenderer_Init(void)
   SpriteRenderer_t *renderer = malloc(sizeof(SpriteRenderer_t));
   renderer->shader = Shader_Init();
   const char vs[] =
-  {
-    #include "shaders/sprite.vs.data"
-    ,0
-  };
+      {
+#include "shaders/sprite.vs.data"
+          , 0};
 
   const char fs[] =
-  {
-    #include "shaders/sprite.fs.data"
-    ,0
-  };
+      {
+#include "shaders/sprite.fs.data"
+          , 0};
   Shader_Load(renderer->shader, vs, fs);
 
   glGenVertexArrays(1, &renderer->vao);
@@ -70,23 +68,29 @@ SpriteRenderer_t *SpriteRenderer_Init(void)
 
 void SpriteRenderer_RenderObject(SpriteRenderer_t *renderer, Texture_t *texture, vec2 position, vec2 size, vec2 uv, bool flip)
 {
-  f32 tw = (f32) Texture_GetWidth(texture)/Texture_GetNumSprites(texture);
-  f32 th = (f32) Texture_GetHeight(texture);
+  SpriteRenderer_RenderObject_With_Color(renderer, texture, position, size, uv, (vec4){1.0f, 1.0f, 1.0f, 1.0f}, flip);
+}
+
+void SpriteRenderer_RenderObject_With_Color(SpriteRenderer_t *renderer, Texture_t *texture, vec2 position, vec2 size, vec2 uv, vec4 color, bool flip)
+{
+  f32 tw = (f32)Texture_GetWidth(texture) / Texture_GetNumSprites(texture);
+  f32 th = (f32)Texture_GetHeight(texture);
 
   SpriteRenderer_Vertex_t vertices[] =
-  {
-    {{position[0], position[1] + size[1]}, {uv[0]/tw, (uv[1] + size[1])/th}},
-    {{position[0] + size[0], position[1]}, {(uv[0] + size[0])/tw, uv[1]/th}},
-    {{position[0], position[1]}, {uv[0]/tw, uv[1]/th}},
-    {{position[0], position[1] + size[1]}, {uv[0]/tw, (uv[1] + size[1])/th}},
-    {{position[0] + size[0], position[1] + size[1]}, {(uv[0] + size[0])/tw, (uv[1] + size[1])/th}},
-    {{position[0] + size[0], position[1]}, {(uv[0] + size[0])/tw, uv[1]/th}},
-  };
+      {
+          {{position[0], position[1] + size[1]}, {uv[0] / tw, (uv[1] + size[1]) / th}},
+          {{position[0] + size[0], position[1]}, {(uv[0] + size[0]) / tw, uv[1] / th}},
+          {{position[0], position[1]}, {uv[0] / tw, uv[1] / th}},
+          {{position[0], position[1] + size[1]}, {uv[0] / tw, (uv[1] + size[1]) / th}},
+          {{position[0] + size[0], position[1] + size[1]}, {(uv[0] + size[0]) / tw, (uv[1] + size[1]) / th}},
+          {{position[0] + size[0], position[1]}, {(uv[0] + size[0]) / tw, uv[1] / th}},
+      };
 
   Shader_Use(renderer->shader);
   Shader_SetUint(renderer->shader, "flip_x", flip);
   Shader_SetFloat(renderer->shader, "time", Global_Time.now);
   Shader_SetUint(renderer->shader, "num_sprites", Texture_GetNumSprites(texture));
+  Shader_SetVec4(renderer->shader, "sprite_color", color);
 
   Texture_Use(texture);
   CheckGlErrors();

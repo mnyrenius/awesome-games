@@ -11,11 +11,13 @@
 #include "time.h"
 #include "text_renderer.h"
 #include "hud.h"
+#include "menu.h"
 
 typedef enum Game_State_t
 {
   GAME_STATE_PLAYING,
   GAME_STATE_WON,
+  GAME_STATE_MENU,
 } Game_State_t;
 
 typedef struct Game_t
@@ -34,6 +36,7 @@ typedef struct Game_t
   Hud_t *hud;
   float time;
   int score;
+  Menu_t *menu;
 } Game_t;
 
 char *collision_direction_to_string(Collision_Direction_t direction)
@@ -96,6 +99,13 @@ void state_playing(Game_t *game, float dt)
     {
       game->player_max_jump = true;
     }
+  }
+
+  if (game->keys[GLFW_KEY_ESCAPE] || game->keys[GLFW_KEY_Q])
+  {
+    Level_SetAlpha(game->level, 0.2f);
+    game->state = GAME_STATE_MENU;
+    return;
   }
 
   if (!game->keys[GLFW_KEY_LEFT] && !game->keys[GLFW_KEY_RIGHT])
@@ -232,11 +242,30 @@ void state_won(Game_t *game, float dt)
   }
 }
 
+void state_menu(Game_t *game, float dt)
+{
+  if (game->keys[GLFW_KEY_UP] && !game->keys_processed[GLFW_KEY_UP])
+  {
+    Menu_Up(game->menu);
+    game->keys_processed[GLFW_KEY_UP] = true;
+  }
+
+  else if (game->keys[GLFW_KEY_DOWN] && !game->keys_processed[GLFW_KEY_DOWN])
+  {
+    Menu_Down(game->menu);
+    game->keys_processed[GLFW_KEY_DOWN] = true;
+  }
+
+  Level_Update(game->level, game->player.position);
+  Menu_Render(game->menu);
+}
+
 Game_t *Game_Init(unsigned int width, unsigned int height)
 {
   Game_t *game = malloc(sizeof(Game_t));
   game->hud = Hud_Init((vec2){0.0f, 550.0f}, (vec2){800.0f, 50.0f});
   game->text_renderer = TextRenderer_Init();
+  game->menu = Menu_Init();
   game->level_no = 0;
   reset_game(game);
   return game;
@@ -252,6 +281,10 @@ void Game_Update(Game_t *game, float dt)
 
   case GAME_STATE_WON:
     state_won(game, dt);
+    break;
+
+  case GAME_STATE_MENU:
+    state_menu(game, dt);
     break;
 
   default:

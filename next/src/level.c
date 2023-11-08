@@ -9,7 +9,7 @@
 
 #define NUM_FRUITS 20
 #define NUM_QUADS 100
-#define QUADS_PER_ROW 5
+#define QUADS_PER_ROW 4
 
 typedef struct Level_t
 {
@@ -20,6 +20,7 @@ typedef struct Level_t
   Texture_t *flag_texture;
   Texture_t *fruit_texture;
   Level_Fruit_t *fruits;
+  float alpha;
 } Level_t;
 
 Level_t *Level_Init(void)
@@ -78,6 +79,7 @@ Level_t *Level_Init(void)
   level->terrain_texture = Texture_Init(&Terrain_16x16_png, Terrain_16x16_png_len, 1);
   level->flag_texture = Texture_Init(&Flag_Idle_64x64_png, Flag_Idle_64x64_png_len, 10);
   level->fruit_texture = Texture_Init(&Orange_png, Orange_png_len, 17);
+  level->alpha = 1.0f;
 
   return level;
 }
@@ -90,7 +92,7 @@ void Level_Update(Level_t *level, vec2 player_pos)
   vec2 uv = {98.0f, 0.0f};
   for (u32 i = 0; i < 25 && player_pos[1] > 250.0f; ++i)
   {
-    SpriteRenderer_RenderObject(level->renderer, level->terrain_texture, level->quads[i].position, level->quads[i].size, uv, false);
+    SpriteRenderer_RenderObject_With_Color(level->renderer, level->terrain_texture, level->quads[i].position, level->quads[i].size, uv, (vec4){1.0f, 1.0f, 1.0f, level->alpha}, false);
   }
 
   uv[0] = 208.0f;
@@ -100,7 +102,7 @@ void Level_Update(Level_t *level, vec2 player_pos)
     Level_Quad_t *q = &level->quads[i];
     if (q->position[1] >= y_min && q->position[1] <= y_max)
     {
-      SpriteRenderer_RenderObject(level->renderer, level->terrain_texture, q->position, q->size, uv, false);
+      SpriteRenderer_RenderObject_With_Color(level->renderer, level->terrain_texture, q->position, q->size, uv, (vec4){1.0f, 1.0f, 1.0f, level->alpha}, false);
     }
   }
 
@@ -109,11 +111,11 @@ void Level_Update(Level_t *level, vec2 player_pos)
     Level_Fruit_t *f = &level->fruits[i];
     if (f->quad.position[1] >= y_min && f->quad.position[1] <= y_max && !level->fruits[i].taken)
     {
-      SpriteRenderer_RenderObject(level->renderer, level->fruit_texture, f->quad.position, f->quad.size, (vec2){0.0f, 0.0f}, false);
+      SpriteRenderer_RenderObject_With_Color(level->renderer, level->fruit_texture, f->quad.position, f->quad.size, (vec2){0.0f, 0.0f}, (vec4){1.0f, 1.0f, 1.0f, level->alpha}, false);
     }
   }
 
-  SpriteRenderer_RenderObject(level->renderer, level->flag_texture, level->flag.position, level->flag.size, (vec2){0.0f, 0.0f}, false);
+  SpriteRenderer_RenderObject_With_Color(level->renderer, level->flag_texture, level->flag.position, level->flag.size, (vec2){0.0f, 0.0f}, (vec4){1.0f, 1.0f, 1.0f, level->alpha}, false);
 
   vec2 view = {0.0f, 0.0f};
 
@@ -134,6 +136,11 @@ Level_Objects_t Level_GetObjects(Level_t *level)
       .fruits = level->fruits,
       .num_fruits = NUM_FRUITS,
   };
+}
+
+void Level_SetAlpha(Level_t *level, float alpha)
+{
+  level->alpha = alpha;
 }
 
 void Level_Delete(Level_t *level)
