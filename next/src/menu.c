@@ -18,7 +18,7 @@ typedef struct Menu_Item_Int_t
 typedef struct Menu_t
 {
   Menu_Item_Int_t items[NUM_ITEMS];
-  u32 current_item;
+  i32 current_item;
   Renderer_t *renderer;
   TextRenderer_t *text_renderer;
   TextRenderer_t *title_renderer;
@@ -70,26 +70,12 @@ Menu_t *Menu_Init(void)
 
 void Menu_Up(Menu_t *menu)
 {
-  if (menu->current_item == 0)
-  {
-    menu->current_item = 2;
-  }
-  else
-  {
-    menu->current_item--;
-  }
+  menu->current_item = (menu->current_item - 1 + NUM_ITEMS) % NUM_ITEMS;
 }
 
 void Menu_Down(Menu_t *menu)
 {
-  if (menu->current_item == 2)
-  {
-    menu->current_item = 0;
-  }
-  else
-  {
-    menu->current_item++;
-  }
+  menu->current_item = (menu->current_item + 1 + NUM_ITEMS) % NUM_ITEMS;
 }
 
 void Menu_Render(Menu_t *menu)

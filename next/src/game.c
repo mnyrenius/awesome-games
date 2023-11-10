@@ -13,31 +13,34 @@
 #include "hud.h"
 #include "menu.h"
 #include <math.h>
+#include "highscores.h"
 
 typedef enum Game_State_t
 {
   GAME_STATE_PLAYING,
   GAME_STATE_WON,
   GAME_STATE_MENU,
+  GAME_STATE_HIGHSCORES,
 } Game_State_t;
 
 typedef struct Game_t
 {
+  Game_State_t state;
+  Player_t player;
+  Level_t *level;
+  Menu_t *menu;
+  Hud_t *hud;
+  Highscores_t *highscores;
+  TextRenderer_t *text_renderer;
   u32 width;
   u32 height;
   bool keys[512];
   bool keys_processed[512];
-  Player_t player;
   bool player_at_ground;
   bool player_max_jump;
-  Level_t *level;
   u32 level_no;
-  Game_State_t state;
-  TextRenderer_t *text_renderer;
-  Hud_t *hud;
   f32 time;
   int score;
-  Menu_t *menu;
   bool quit;
   f32 menu_camera_position;
 } Game_t;
@@ -274,6 +277,9 @@ void state_menu(Game_t *game, float dt)
       Level_SetAlpha(game->level, 1.0f);
       game->state = GAME_STATE_PLAYING;
       break;
+    case MENU_ITEM_HIGHSCORES:
+      game->state = GAME_STATE_HIGHSCORES;
+      break;
     case MENU_ITEM_QUIT:
       game->quit = true;
 
@@ -288,10 +294,57 @@ void state_menu(Game_t *game, float dt)
   Menu_Render(game->menu);
 }
 
+void state_highscores(Game_t *game, float dt)
+{
+  if (Highscores_GetMode(game->highscores) == HIGHSCORES_MODE_VIEW)
+  {
+    if ((game->keys[GLFW_KEY_ESCAPE] && !game->keys_processed[GLFW_KEY_ESCAPE]) ||
+        (game->keys[GLFW_KEY_Q] && !game->keys_processed[GLFW_KEY_Q]))
+    {
+      game->state = GAME_STATE_MENU;
+      game->keys_processed[GLFW_KEY_ESCAPE] = true;
+      game->keys_processed[GLFW_KEY_Q] = true;
+    }
+  }
+
+  else if (Highscores_GetMode(game->highscores) == HIGHSCORES_MODE_ADD)
+  {
+    if (game->keys[GLFW_KEY_ENTER] && !game->keys_processed[GLFW_KEY_ENTER])
+    {
+      Highscores_EnterKey(game->highscores, GLFW_KEY_ENTER);
+      game->keys_processed[GLFW_KEY_ENTER] = true;
+    }
+
+    else if (game->keys[GLFW_KEY_BACKSPACE] && !game->keys_processed[GLFW_KEY_BACKSPACE])
+    {
+      Highscores_EnterKey(game->highscores, GLFW_KEY_BACKSPACE);
+      game->keys_processed[GLFW_KEY_BACKSPACE] = true;
+    }
+
+    else
+    {
+      for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; ++i)
+      {
+        if (game->keys[i] && !game->keys_processed[i])
+        {
+          Highscores_EnterKey(game->highscores, i);
+          game->keys_processed[i] = true;
+        }
+      }
+    }
+  }
+
+  game->menu_camera_position -= 0.01 * dt;
+
+  Level_Update(game->level, (vec2){400.0f, 800.0f * cos(game->menu_camera_position)});
+  Highscores_Render(game->highscores);
+}
+
 Game_t *Game_Init(unsigned int width, unsigned int height)
 {
   Game_t *game = malloc(sizeof(Game_t));
   game->hud = Hud_Init((vec2){0.0f, 550.0f}, (vec2){800.0f, 50.0f});
+  game->highscores = Highscores_Init();
   game->text_renderer = TextRenderer_Init();
   game->menu = Menu_Init();
   game->level_no = 0;
@@ -317,6 +370,10 @@ void Game_Update(Game_t *game, float dt)
 
   case GAME_STATE_MENU:
     state_menu(game, dt);
+    break;
+
+  case GAME_STATE_HIGHSCORES:
+    state_highscores(game, dt);
     break;
 
   default:

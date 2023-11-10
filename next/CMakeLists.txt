@@ -16,6 +16,7 @@ configure_file(
 
 add_executable(next
   src/game.c
+  src/highscores.c
   src/hud.c
   src/level.c
   src/menu.c
