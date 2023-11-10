@@ -12,6 +12,7 @@
 #include "text_renderer.h"
 #include "hud.h"
 #include "menu.h"
+#include <math.h>
 
 typedef enum Game_State_t
 {
@@ -34,9 +35,11 @@ typedef struct Game_t
   Game_State_t state;
   TextRenderer_t *text_renderer;
   Hud_t *hud;
-  float time;
+  f32 time;
   int score;
   Menu_t *menu;
+  bool quit;
+  f32 menu_camera_position;
 } Game_t;
 
 char *collision_direction_to_string(Collision_Direction_t direction)
@@ -65,7 +68,6 @@ void reset_game(Game_t *game)
   game->player_at_ground = false;
   game->player_max_jump = false;
   game->level = Level_Init();
-  game->state = GAME_STATE_PLAYING;
   game->time = 0;
   game->score = 0;
 }
@@ -101,8 +103,10 @@ void state_playing(Game_t *game, float dt)
     }
   }
 
-  if (game->keys[GLFW_KEY_ESCAPE] || game->keys[GLFW_KEY_Q])
+  if ((game->keys[GLFW_KEY_ESCAPE] && !game->keys_processed[GLFW_KEY_ESCAPE]) || (game->keys[GLFW_KEY_Q] && !game->keys_processed[GLFW_KEY_Q]))
   {
+    game->keys_processed[GLFW_KEY_ESCAPE] = true;
+    game->keys_processed[GLFW_KEY_Q] = true;
     Level_SetAlpha(game->level, 0.2f);
     game->state = GAME_STATE_MENU;
     return;
@@ -238,6 +242,7 @@ void state_won(Game_t *game, float dt)
     Player_Delete(&game->player);
     game->level_no++;
     reset_game(game);
+    game->state = GAME_STATE_PLAYING;
     Hud_SetLevel(game->hud, game->level_no);
   }
 }
@@ -256,7 +261,30 @@ void state_menu(Game_t *game, float dt)
     game->keys_processed[GLFW_KEY_DOWN] = true;
   }
 
-  Level_Update(game->level, game->player.position);
+  else if (game->keys[GLFW_KEY_Q] && !game->keys_processed[GLFW_KEY_Q])
+  {
+    game->quit = true;
+  }
+
+  else if (game->keys[GLFW_KEY_ENTER])
+  {
+    switch (Menu_Get(game->menu))
+    {
+    case MENU_ITEM_PLAY:
+      Level_SetAlpha(game->level, 1.0f);
+      game->state = GAME_STATE_PLAYING;
+      break;
+    case MENU_ITEM_QUIT:
+      game->quit = true;
+
+    default:
+      break;
+    }
+  }
+
+  game->menu_camera_position -= 0.01 * dt;
+
+  Level_Update(game->level, (vec2){400.0f, 800.0f * cos(game->menu_camera_position)});
   Menu_Render(game->menu);
 }
 
@@ -267,7 +295,11 @@ Game_t *Game_Init(unsigned int width, unsigned int height)
   game->text_renderer = TextRenderer_Init();
   game->menu = Menu_Init();
   game->level_no = 0;
+  game->quit = false;
+  game->state = GAME_STATE_MENU;
+  game->menu_camera_position = 300.0f;
   reset_game(game);
+  Level_SetAlpha(game->level, 0.2f);
   return game;
 }
 
@@ -308,5 +340,5 @@ void Game_UpdateKeys(Game_t *game, int key, int action)
 
 bool Game_IsQuit(Game_t *game)
 {
-  return false;
+  return game->quit;
 }
