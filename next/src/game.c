@@ -43,6 +43,7 @@ typedef struct Game_t
   int score;
   bool quit;
   f32 menu_camera_position;
+  u32 num_fruits_taken;
 } Game_t;
 
 char *collision_direction_to_string(Collision_Direction_t direction)
@@ -72,7 +73,7 @@ void reset_game(Game_t *game)
   game->player_max_jump = false;
   game->level = Level_Init();
   game->time = 0;
-  game->score = 0;
+  game->num_fruits_taken = 0;
 }
 
 void state_playing(Game_t *game, float dt)
@@ -115,6 +116,16 @@ void state_playing(Game_t *game, float dt)
     return;
   }
 
+  if (game->keys[GLFW_KEY_S] && !game->keys_processed[GLFW_KEY_S])
+  {
+    Level_Delete(game->level);
+    Player_Delete(&game->player);
+    game->level_no++;
+    reset_game(game);
+    game->state = GAME_STATE_PLAYING;
+    Hud_SetLevel(game->hud, game->level_no);
+  }
+
   if (!game->keys[GLFW_KEY_LEFT] && !game->keys[GLFW_KEY_RIGHT])
   {
     game->player.velocity[0] = 0.0f;
@@ -135,7 +146,7 @@ void state_playing(Game_t *game, float dt)
   corrected_flag_size[1] = level_objs.flag->size[1] / 2;
   Collision_Result_t flag_collision = Collision_RectangleToRectangle(game->player.position, game->player.size,
                                                                      corrected_flag_pos, corrected_flag_size);
-  if (flag_collision.collision)
+  if (flag_collision.collision && game->num_fruits_taken == level_objs.num_fruits)
   {
     game->state = GAME_STATE_WON;
     return;
@@ -215,8 +226,7 @@ void state_playing(Game_t *game, float dt)
     if (collision_result.collision)
     {
       q->taken = true;
-      game->score += 10;
-      Hud_SetScore(game->hud, game->score);
+      game->num_fruits_taken++;
     }
   }
 
@@ -347,7 +357,7 @@ Game_t *Game_Init(unsigned int width, unsigned int height)
   game->highscores = Highscores_Init();
   game->text_renderer = TextRenderer_Init();
   game->menu = Menu_Init();
-  game->level_no = 0;
+  game->level_no = 1;
   game->quit = false;
   game->state = GAME_STATE_MENU;
   game->menu_camera_position = 300.0f;
