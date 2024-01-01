@@ -1,18 +1,12 @@
 #pragma once
 
-#include <stdbool.h>
 #include "types.h"
 
+#define NUM_LEVELS 99
+
 typedef struct Highscores_t Highscores_t;
-typedef enum Highscores_Mode_t
-{
-  HIGHSCORES_MODE_VIEW,
-  HIGHSCORES_MODE_ADD
-} Highscores_Mode_t;
 
 Highscores_t *Highscores_Init(void);
 void Highscores_Render(Highscores_t *highscores);
-bool Highscores_CheckScore(Highscores_t *highscores, u32 score);
-void Highscores_Add(Highscores_t *highscores, u32 score);
-void Highscores_EnterKey(Highscores_t *highscores, u32 key);
-Highscores_Mode_t Highscores_GetMode(Highscores_t *highscores);
+void Highscores_TryAdd(Highscores_t *highscores, u32 level, u32 score_seconds);
+u32 *Highscores_GetHighscores(Highscores_t *highscores);

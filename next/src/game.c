@@ -306,42 +306,12 @@ void state_menu(Game_t *game, float dt)
 
 void state_highscores(Game_t *game, float dt)
 {
-  if (Highscores_GetMode(game->highscores) == HIGHSCORES_MODE_VIEW)
+  if ((game->keys[GLFW_KEY_ESCAPE] && !game->keys_processed[GLFW_KEY_ESCAPE]) ||
+      (game->keys[GLFW_KEY_Q] && !game->keys_processed[GLFW_KEY_Q]))
   {
-    if ((game->keys[GLFW_KEY_ESCAPE] && !game->keys_processed[GLFW_KEY_ESCAPE]) ||
-        (game->keys[GLFW_KEY_Q] && !game->keys_processed[GLFW_KEY_Q]))
-    {
-      game->state = GAME_STATE_MENU;
-      game->keys_processed[GLFW_KEY_ESCAPE] = true;
-      game->keys_processed[GLFW_KEY_Q] = true;
-    }
-  }
-
-  else if (Highscores_GetMode(game->highscores) == HIGHSCORES_MODE_ADD)
-  {
-    if (game->keys[GLFW_KEY_ENTER] && !game->keys_processed[GLFW_KEY_ENTER])
-    {
-      Highscores_EnterKey(game->highscores, GLFW_KEY_ENTER);
-      game->keys_processed[GLFW_KEY_ENTER] = true;
-    }
-
-    else if (game->keys[GLFW_KEY_BACKSPACE] && !game->keys_processed[GLFW_KEY_BACKSPACE])
-    {
-      Highscores_EnterKey(game->highscores, GLFW_KEY_BACKSPACE);
-      game->keys_processed[GLFW_KEY_BACKSPACE] = true;
-    }
-
-    else
-    {
-      for (int i = GLFW_KEY_A; i <= GLFW_KEY_Z; ++i)
-      {
-        if (game->keys[i] && !game->keys_processed[i])
-        {
-          Highscores_EnterKey(game->highscores, i);
-          game->keys_processed[i] = true;
-        }
-      }
-    }
+    game->state = GAME_STATE_MENU;
+    game->keys_processed[GLFW_KEY_ESCAPE] = true;
+    game->keys_processed[GLFW_KEY_Q] = true;
   }
 
   game->menu_camera_position -= 0.01 * dt;

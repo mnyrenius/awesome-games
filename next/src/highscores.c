@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <GLFW/glfw3.h>
@@ -9,8 +10,6 @@
 #include "util.h"
 #include "types.h"
 
-#define NAME_LENGTH 8
-#define NUM_HIGHSCORES 8
 #define HIGHSCORE_FILE "jumpf.dat"
 
 #ifdef __linux__
@@ -19,66 +18,21 @@
 #define HOME_ENVVAR "USERPROFILE"
 #endif
 
-typedef struct Highscores_Entry_t
-{
-  char name[NAME_LENGTH];
-  u32 score;
-} Highscores_Entry_t;
-
 typedef struct Highscores_t
 {
   Renderer_t *renderer;
   TextRenderer_t *text_renderer;
   TextRenderer_t *title_renderer;
   Shader_t *title_shader;
-  Highscores_Entry_t scores[NUM_HIGHSCORES];
+  u32 scores_seconds[NUM_LEVELS];
   f32 counter;
-  Highscores_Entry_t new;
-  Highscores_Mode_t mode;
 } Highscores_t;
-
-static void mode_view(Highscores_t *highscores)
-{
-  vec2 text_pos = {220.0f, 270.0f};
-
-  char str[16];
-  TextRenderer_RenderString(highscores->text_renderer, "NAME", text_pos, 2.0f);
-  text_pos[0] = 420.0f;
-  TextRenderer_RenderString(highscores->text_renderer, "SCORE", text_pos, 2.0f);
-
-  text_pos[1] += 16.0f;
-  for (u32 i = 0; i < NUM_HIGHSCORES; ++i)
-  {
-    Highscores_Entry_t *entry = &highscores->scores[i];
-    sprintf(str, "%d. %s", i + 1, entry->name);
-    text_pos[0] = 220.0f;
-    text_pos[1] += 16.0f;
-    TextRenderer_RenderString(highscores->text_renderer, str, text_pos, 2.0f);
-    if (entry->score > 0)
-      sprintf(str, "%d", entry->score);
-    else
-      sprintf(str, "%s", "-");
-    text_pos[0] = 420.0f;
-    TextRenderer_RenderString(highscores->text_renderer, str, text_pos, 2.0f);
-  }
-}
-
-static void mode_add(Highscores_t *highscores)
-{
-  vec2 text_pos = {400.0f - 104.0f, 300.0f};
-  char str[16];
-  char name[NAME_LENGTH];
-  strcpy(name, highscores->new.name);
-  memset(name + strlen(highscores->new.name), '-', NAME_LENGTH - strlen(highscores->new.name - 1));
-  sprintf(str, "NAME: %s", name);
-  TextRenderer_RenderString(highscores->text_renderer, str, text_pos, 2.0f);
-}
 
 static u32 calc_checksum(Highscores_t *highscores)
 {
   u32 checksum = 0;
-  char *p = (char *)&highscores->scores;
-  for (u32 i = 0; i < sizeof(highscores->scores); ++i)
+  char *p = (char *)&highscores->scores_seconds;
+  for (u32 i = 0; i < sizeof(highscores->scores_seconds); ++i)
   {
     checksum += p[i];
   }
@@ -114,7 +68,7 @@ static void write_file(Highscores_t *highscores)
   u32 checksum = calc_checksum(highscores);
 
   fwrite(&checksum, sizeof(u32), 1, fp);
-  fwrite(highscores->scores, sizeof(Highscores_Entry_t), NUM_HIGHSCORES, fp);
+  fwrite(highscores->scores_seconds, sizeof(u32), NUM_LEVELS, fp);
   fclose(fp);
 }
 
@@ -154,9 +108,9 @@ Highscores_t *Highscores_Init(void)
   {
     u32 checksum = -1;
     size_t checksum_read = fread(&checksum, sizeof(u32), 1, fp);
-    size_t hs_read = fread(highscores->scores, sizeof(Highscores_Entry_t), NUM_HIGHSCORES, fp);
+    size_t hs_read = fread(highscores->scores_seconds, sizeof(u32), NUM_LEVELS, fp);
     if (checksum_read == 1 &&
-        hs_read == NUM_HIGHSCORES &&
+        hs_read == NUM_LEVELS &&
         checksum == calc_checksum(highscores))
     {
       read_success = true;
@@ -166,24 +120,13 @@ Highscores_t *Highscores_Init(void)
 
   if (!read_success)
   {
-    strcpy(highscores->scores[0].name, "JOE");
-    highscores->scores[0].score = 100000;
-
-    strcpy(highscores->scores[1].name, "MIKE");
-    highscores->scores[1].score = 10000;
-
-    strcpy(highscores->scores[2].name, "SVEN");
-    highscores->scores[2].score = 1000;
-
-    for (u32 i = 3; i < NUM_HIGHSCORES; ++i)
+    for (u32 i = 3; i < NUM_LEVELS; ++i)
     {
-      strcpy(highscores->scores[i].name, "-------");
-      highscores->scores[i].score = 0;
+      highscores->scores_seconds[i] = 0;
     }
   }
 
   highscores->counter = 0.0f;
-  highscores->mode = HIGHSCORES_MODE_VIEW;
 
   return highscores;
 }
@@ -211,84 +154,37 @@ void Highscores_Render(Highscores_t *highscores)
   Shader_SetFloat(highscores->title_shader, "time", (1.0f + sin(highscores->counter += 0.01f)) / 2.5f);
   TextRenderer_RenderString(highscores->title_renderer, title, text_pos, 8.0f);
 
-  switch (highscores->mode)
+  text_pos[0] = 220.0f;
+  text_pos[1] = 270.0f;
+
+  char str[16];
+  text_pos[1] += 16.0f;
+  for (u32 i = 0; i < NUM_LEVELS; ++i)
   {
-  case HIGHSCORES_MODE_VIEW:
-    mode_view(highscores);
-    break;
-
-  case HIGHSCORES_MODE_ADD:
-    mode_add(highscores);
-    break;
-
-  default:
-    break;
+    u32 seconds = highscores->scores_seconds[i];
+    sprintf(str, "Level %d", i);
+    text_pos[0] = 220.0f;
+    text_pos[1] += 16.0f;
+    TextRenderer_RenderString(highscores->text_renderer, str, text_pos, 2.0f);
+    if (seconds > 0)
+      sprintf(str, "%d", seconds);
+    else
+      sprintf(str, "%s", "-");
+    text_pos[0] = 420.0f;
+    TextRenderer_RenderString(highscores->text_renderer, str, text_pos, 2.0f);
   }
 }
 
-bool Highscores_CheckScore(Highscores_t *highscores, u32 score)
+void Highscores_TryAdd(Highscores_t *highscores, u32 level, u32 score)
 {
-  for (u32 i = 0; i < NUM_HIGHSCORES; ++i)
+  if (level <= NUM_LEVELS && score > highscores->scores_seconds[level])
   {
-    if (score > highscores->scores[i].score)
-    {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-void Highscores_Add(Highscores_t *highscores, u32 score)
-{
-  highscores->mode = HIGHSCORES_MODE_ADD;
-  highscores->new.score = score;
-  strcpy(highscores->new.name, "");
-}
-
-Highscores_Mode_t Highscores_GetMode(Highscores_t *highscores)
-{
-  return highscores->mode;
-}
-void Highscores_EnterKey(Highscores_t *highscores, u32 key)
-{
-  if (highscores->mode != HIGHSCORES_MODE_ADD)
-  {
-    return;
-  }
-
-  if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z)
-  {
-    if (strlen(highscores->new.name) < NAME_LENGTH - 1)
-    {
-      char n[] = {key, '\0'};
-      strcat(highscores->new.name, n);
-    }
-  }
-
-  else if (key == GLFW_KEY_ENTER)
-  {
-    for (u32 i = 0; i < NUM_HIGHSCORES; ++i)
-    {
-      if (highscores->new.score > highscores->scores[i].score)
-      {
-        memcpy(&highscores->scores[i + 1], &highscores->scores[i], sizeof(Highscores_Entry_t) * (NUM_HIGHSCORES - i - 1));
-        strcpy(highscores->scores[i].name, highscores->new.name);
-        highscores->scores[i].score = highscores->new.score;
-        break;
-      }
-    }
-
+    highscores->scores_seconds[level] = score;
     write_file(highscores);
-    highscores->mode = HIGHSCORES_MODE_VIEW;
   }
+}
 
-  else if (key == GLFW_KEY_BACKSPACE)
-  {
-    u32 last = strlen(highscores->new.name);
-    if (last > 0)
-    {
-      highscores->new.name[last - 1] = '\0';
-    }
-  }
+u32 *Highscores_GetHighscores(Highscores_t *highscores)
+{
+  return highscores->scores_seconds;
 }
