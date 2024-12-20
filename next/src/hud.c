@@ -64,7 +64,7 @@ void Hud_SetTime(Hud_t *hud, f32 time)
 
 void Hud_SetLevel(Hud_t *hud, int level)
 {
-  hud->level = level;
+  hud->level = level + 1;
 }
 
 void Hud_SetNotification(Hud_t *hud, const char *notification)

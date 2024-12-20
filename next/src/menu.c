@@ -8,7 +8,7 @@
 #include "build_info.h"
 
 #define MENU_ITEM_STR_LEN 12
-#define NUM_ITEMS 3
+#define NUM_ITEMS 2
 typedef struct Menu_Item_Int_t
 {
   Menu_Item_t item;
@@ -40,12 +40,10 @@ Menu_t *Menu_Init(void)
       1.0f, 1.0f,
       1.0f, 0.0f};
 
-  menu->items[0].item = MENU_ITEM_PLAY;
-  strcpy(menu->items[0].str, "PLAY GAME");
-  menu->items[1].item = MENU_ITEM_HIGHSCORES;
-  strcpy(menu->items[1].str, "HIGH SCORES");
-  menu->items[2].item = MENU_ITEM_QUIT;
-  strcpy(menu->items[2].str, "QUIT");
+  menu->items[0].item = MENU_ITEM_LEVEL_SELECT;
+  strcpy(menu->items[0].str, "LEVEL SELECT");
+  menu->items[1].item = MENU_ITEM_QUIT;
+  strcpy(menu->items[1].str, "QUIT");
 
   menu->current_item = 0;
   menu->renderer = Renderer_Init(vertices, sizeof(vertices));

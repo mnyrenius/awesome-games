@@ -91,6 +91,8 @@ TextRenderer_t *TextRenderer_Init_With_Shader(Shader_t *shader)
   mat4x4_ortho(projection, 0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
   Shader_Use(renderer->shader);
   Shader_SetMatrix4(renderer->shader, "projection", &projection);
+  vec3 color = { 1.0f, 1.0f, 1.0f };
+  Shader_SetVec3(renderer->shader, "color", color);
 
   glGenTextures(1, &renderer->textureId);
   glBindTexture(GL_TEXTURE_2D, renderer->textureId);
@@ -102,7 +104,7 @@ TextRenderer_t *TextRenderer_Init_With_Shader(Shader_t *shader)
 return renderer;
 }
 
-void TextRenderer_RenderString(TextRenderer_t *renderer, const char *str, vec2 position, float size)
+void TextRenderer_RenderString_WithColor(TextRenderer_t *renderer, const char *str, vec2 position, float size, vec3 color)
 {
   int width = strlen(str) * 8;
   int height = 8;
@@ -121,6 +123,7 @@ void TextRenderer_RenderString(TextRenderer_t *renderer, const char *str, vec2 p
 
   Shader_Use(renderer->shader);
   Shader_SetMatrix4(renderer->shader, "model", &model);
+  Shader_SetVec3(renderer->shader, "color", color);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, renderer->textureId);
@@ -139,6 +142,11 @@ void TextRenderer_RenderString(TextRenderer_t *renderer, const char *str, vec2 p
   free(buffer);
 }
 
+void TextRenderer_RenderString(TextRenderer_t *renderer, const char *str, vec2 position, float size)
+{
+  vec3 color = { 1.0f, 1.0f, 1.0f };
+  TextRenderer_RenderString_WithColor(renderer, str, position, size, color);
+}
 
 void TextRenderer_Delete(TextRenderer_t *renderer)
 {

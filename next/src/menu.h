@@ -5,8 +5,7 @@ typedef struct Menu_t Menu_t;
 
 typedef enum Menu_Item_t
 {
-  MENU_ITEM_PLAY,
-  MENU_ITEM_HIGHSCORES,
+  MENU_ITEM_LEVEL_SELECT,
   MENU_ITEM_QUIT,
   MENU_ITEM_LAST
 } Menu_Item_t;

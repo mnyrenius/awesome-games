@@ -24,6 +24,7 @@ add_executable(next
   src/player.c
   resources/sprites.c
   src/sprite_renderer.c
+  src/level_selection.c
 )
 
 target_include_directories(

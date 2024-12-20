@@ -14,13 +14,14 @@
 #include "menu.h"
 #include <math.h>
 #include "highscores.h"
+#include "level_selection.h"
 
 typedef enum Game_State_t
 {
   GAME_STATE_PLAYING,
   GAME_STATE_WON,
   GAME_STATE_MENU,
-  GAME_STATE_HIGHSCORES,
+  GAME_STATE_LEVEL_SELECTION,
 } Game_State_t;
 
 typedef struct Game_t
@@ -31,6 +32,7 @@ typedef struct Game_t
   Menu_t *menu;
   Hud_t *hud;
   Highscores_t *highscores;
+  LevelSelection_t *level_selection;
   TextRenderer_t *text_renderer;
   u32 width;
   u32 height;
@@ -40,7 +42,6 @@ typedef struct Game_t
   bool player_max_jump;
   u32 level_no;
   f32 time;
-  int score;
   bool quit;
   f32 menu_camera_position;
   u32 num_fruits_taken;
@@ -74,6 +75,7 @@ void reset_game(Game_t *game)
   game->level = Level_Init();
   game->time = 0;
   game->num_fruits_taken = 0;
+  Hud_SetLevel(game->hud, game->level_no);
 }
 
 void state_playing(Game_t *game, float dt)
@@ -123,7 +125,6 @@ void state_playing(Game_t *game, float dt)
     game->level_no++;
     reset_game(game);
     game->state = GAME_STATE_PLAYING;
-    Hud_SetLevel(game->hud, game->level_no);
   }
 
   if (!game->keys[GLFW_KEY_LEFT] && !game->keys[GLFW_KEY_RIGHT])
@@ -249,6 +250,8 @@ void state_won(Game_t *game, float dt)
   char *text = "LEVEL CLEARED.";
   TextRenderer_RenderString(game->text_renderer, text, (vec2){400.0f - strlen(text) * 8.0f * 2, 300.0f}, 4.0f);
 
+  Highscores_TryAdd(game->highscores, game->level_no, game->time);
+
   if (game->keys[GLFW_KEY_ENTER])
   {
     Level_Delete(game->level);
@@ -256,7 +259,6 @@ void state_won(Game_t *game, float dt)
     game->level_no++;
     reset_game(game);
     game->state = GAME_STATE_PLAYING;
-    Hud_SetLevel(game->hud, game->level_no);
   }
 }
 
@@ -281,14 +283,12 @@ void state_menu(Game_t *game, float dt)
 
   else if (game->keys[GLFW_KEY_ENTER])
   {
+    game->keys_processed[GLFW_KEY_ENTER] = true;
+
     switch (Menu_Get(game->menu))
     {
-    case MENU_ITEM_PLAY:
-      Level_SetAlpha(game->level, 1.0f);
-      game->state = GAME_STATE_PLAYING;
-      break;
-    case MENU_ITEM_HIGHSCORES:
-      game->state = GAME_STATE_HIGHSCORES;
+    case MENU_ITEM_LEVEL_SELECT:
+      game->state = GAME_STATE_LEVEL_SELECTION;
       break;
     case MENU_ITEM_QUIT:
       game->quit = true;
@@ -304,7 +304,7 @@ void state_menu(Game_t *game, float dt)
   Menu_Render(game->menu);
 }
 
-void state_highscores(Game_t *game, float dt)
+void state_level_selection(Game_t *game, float dt)
 {
   if ((game->keys[GLFW_KEY_ESCAPE] && !game->keys_processed[GLFW_KEY_ESCAPE]) ||
       (game->keys[GLFW_KEY_Q] && !game->keys_processed[GLFW_KEY_Q]))
@@ -313,11 +313,28 @@ void state_highscores(Game_t *game, float dt)
     game->keys_processed[GLFW_KEY_ESCAPE] = true;
     game->keys_processed[GLFW_KEY_Q] = true;
   }
+  else if (game->keys[GLFW_KEY_UP] && !game->keys_processed[GLFW_KEY_UP])
+  {
+    LevelSelection_Up(game->level_selection);
+    game->keys_processed[GLFW_KEY_UP] = true;
+  }
+  else if (game->keys[GLFW_KEY_DOWN] && !game->keys_processed[GLFW_KEY_DOWN])
+  {
+    LevelSelection_Down(game->level_selection);
+    game->keys_processed[GLFW_KEY_DOWN] = true;
+  }
+  else if (game->keys[GLFW_KEY_ENTER] && !game->keys_processed[GLFW_KEY_ENTER])
+  {
+    game->keys_processed[GLFW_KEY_ENTER] = true;
+    game->state = GAME_STATE_PLAYING;
+    game->level_no = LevelSelection_Get(game->level_selection);
+    reset_game(game);
+  }
 
   game->menu_camera_position -= 0.01 * dt;
 
   Level_Update(game->level, (vec2){400.0f, 800.0f * cos(game->menu_camera_position)});
-  Highscores_Render(game->highscores);
+  LevelSelection_Render(game->level_selection);
 }
 
 Game_t *Game_Init(unsigned int width, unsigned int height)
@@ -325,9 +342,10 @@ Game_t *Game_Init(unsigned int width, unsigned int height)
   Game_t *game = malloc(sizeof(Game_t));
   game->hud = Hud_Init((vec2){0.0f, 550.0f}, (vec2){800.0f, 50.0f});
   game->highscores = Highscores_Init();
+  game->level_selection = LevelSelection_Init(game->highscores);
   game->text_renderer = TextRenderer_Init();
   game->menu = Menu_Init();
-  game->level_no = 1;
+  game->level_no = 0;
   game->quit = false;
   game->state = GAME_STATE_MENU;
   game->menu_camera_position = 300.0f;
@@ -352,8 +370,8 @@ void Game_Update(Game_t *game, float dt)
     state_menu(game, dt);
     break;
 
-  case GAME_STATE_HIGHSCORES:
-    state_highscores(game, dt);
+  case GAME_STATE_LEVEL_SELECTION:
+    state_level_selection(game, dt);
     break;
 
   default:
