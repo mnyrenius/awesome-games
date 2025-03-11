@@ -1,0 +1,3 @@
+#pragma once
+
+#cmakedefine HOPPSPEL_BUILD "v. @HOPPSPEL_BUILD@"

@@ -8,7 +8,7 @@
 #include "util.h"
 #include "types.h"
 
-#define HIGHSCORE_FILE "jumpf.dat"
+#define HIGHSCORE_FILE "hoppspel.dat"
 
 #ifdef __linux__
 #define HOME_ENVVAR "HOME"
@@ -39,7 +39,7 @@ static FILE *open_file(const char *mode)
   char *home = getenv(HOME_ENVVAR);
   if (home)
   {
-    char *path = malloc(strlen(home) + strlen(HIGHSCORE_FILE) + 2);
+    char *path = malloc(strlen(home) + strlen(HIGHSCORE_FILE) + 3);
     sprintf(path, "%s/.%s", home, HIGHSCORE_FILE);
     LOG("Open %s\n", path);
     fp = fopen(path, mode);

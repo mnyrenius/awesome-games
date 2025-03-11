@@ -101,7 +101,7 @@ void LevelSelection_Render(LevelSelection_t *level_selection)
   Renderer_RenderObject(level_selection->renderer, pos, size, color);
 
   vec2 text_pos;
-  const char *title = "JUMP. FAST!";
+  const char *title = "HOPPSPEL";
   text_pos[0] = 400.0f - strlen(title) * 8.0f * 8.0f / 2.0f;
   text_pos[1] = 100.0f;
   Shader_Use(level_selection->title_shader);
@@ -166,7 +166,7 @@ void LevelSelection_Render(LevelSelection_t *level_selection)
 
   text_pos[0] = 0.0f;
   text_pos[1] = 0.0f;
-  TextRenderer_RenderString(level_selection->text_renderer, NEXT_BUILD, text_pos, 1.0f);
+  TextRenderer_RenderString(level_selection->text_renderer, HOPPSPEL_BUILD, text_pos, 1.0f);
 }
 
 u32 LevelSelection_Get(LevelSelection_t *level_selection)

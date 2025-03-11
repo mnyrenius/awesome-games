@@ -1,3 +1,0 @@
-#pragma once
-
-#cmakedefine NEXT_BUILD "v. @NEXT_BUILD@"

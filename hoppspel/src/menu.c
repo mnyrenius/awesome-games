@@ -92,7 +92,7 @@ void Menu_Render(Menu_t *menu)
   Renderer_RenderObject(menu->renderer, pos, size, color);
 
   vec2 text_pos;
-  const char *title = "JUMP. FAST!";
+  const char *title = "HOPPSPEL";
   text_pos[0] = 400.0f - strlen(title) * 8.0f * 8.0f / 2.0f;
   text_pos[1] = 100.0f;
   Shader_Use(menu->title_shader);
@@ -113,14 +113,14 @@ void Menu_Render(Menu_t *menu)
     text_pos[1] += 30.0f;
   }
 
-  const char *author = "Hagaberg Game Studios 2023";
+  const char *author = "Hagaberg Game Studios 2025";
   text_pos[0] = 400.0f - (strlen(author) * 8.0f / 1.5f);
   text_pos[1] = 570.0f;
   TextRenderer_RenderString(menu->text_renderer, author, text_pos, 1.5f);
 
   text_pos[0] = 0.0f;
   text_pos[1] = 0.0f;
-  TextRenderer_RenderString(menu->text_renderer, NEXT_BUILD, text_pos, 1.0f);
+  TextRenderer_RenderString(menu->text_renderer, HOPPSPEL_BUILD, text_pos, 1.0f);
 }
 
 Menu_Item_t Menu_Get(Menu_t *menu)

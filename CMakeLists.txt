@@ -19,4 +19,4 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(lib)
 add_subdirectory(asnake)
-add_subdirectory(next)
+add_subdirectory(hoppspel)

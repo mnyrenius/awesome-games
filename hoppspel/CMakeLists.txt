@@ -5,7 +5,7 @@ include(../lib/cmake/shader.cmake)
 execute_process(
   COMMAND git rev-parse --short HEAD
   OUTPUT_STRIP_TRAILING_WHITESPACE
-  OUTPUT_VARIABLE NEXT_BUILD
+  OUTPUT_VARIABLE HOPPSPEL_BUILD
 )
 
 configure_file(
@@ -14,13 +14,13 @@ configure_file(
   @ONLY
 )
 
-add_executable(next
+add_executable(hoppspel
   src/game.c
   src/highscores.c
   src/hud.c
   src/level.c
   src/menu.c
-  src/next.c
+  src/hoppspel.c
   src/player.c
   resources/sprites.c
   src/sprite_renderer.c
@@ -28,14 +28,14 @@ add_executable(next
 )
 
 target_include_directories(
-  next
+  hoppspel
   PRIVATE
   src
   resources
   ${CMAKE_CURRENT_BINARY_DIR}/gen
 )
 
-target_link_libraries(next
+target_link_libraries(hoppspel
   aglib
   glfw
   m
