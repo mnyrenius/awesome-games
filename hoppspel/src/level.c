@@ -421,7 +421,7 @@ void Level_SetAlpha(Level_t *level, float alpha)
 void Level_Delete(Level_t *level)
 {
   SpriteRenderer_Delete(level->renderer);
+  Texture_Delete(level->terrain_texture);
   free(level->quads);
   free(level);
-  Texture_Delete(level->terrain_texture);
 }
