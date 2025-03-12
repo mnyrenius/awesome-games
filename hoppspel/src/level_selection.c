@@ -53,12 +53,12 @@ LevelSelection_t *LevelSelection_Init(Highscores_t *highscores)
   level_selection->counter = 0.0f;
   const char vs[] =
       {
-#include "shaders/text.vs.data"
+#include "shaders/title.vs.data"
           , 0};
 
   const char fs[] =
       {
-#include "shaders/text.fs.data"
+#include "shaders/title.fs.data"
           , 0};
   Shader_Load(level_selection->title_shader, vs, fs);
   level_selection->title_renderer = TextRenderer_Init_With_Shader(level_selection->title_shader);

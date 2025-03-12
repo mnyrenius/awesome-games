@@ -41,3 +41,6 @@ target_link_libraries(hoppspel
   m
   ${CMAKE_DL_LIBS}
 )
+
+add_shader(hoppspel title.vs)
+add_shader(hoppspel title.fs)

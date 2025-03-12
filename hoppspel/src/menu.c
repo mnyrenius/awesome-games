@@ -46,6 +46,7 @@ Menu_t *Menu_Init(void)
   strcpy(menu->items[1].str, "QUIT");
 
   menu->current_item = 0;
+
   menu->renderer = Renderer_Init(vertices, sizeof(vertices));
   menu->text_renderer = TextRenderer_Init();
 
@@ -53,12 +54,12 @@ Menu_t *Menu_Init(void)
   menu->counter = 0.0f;
   const char vs[] =
       {
-#include "shaders/text.vs.data"
+#include "shaders/title.vs.data"
           , 0};
 
   const char fs[] =
       {
-#include "shaders/text.fs.data"
+#include "shaders/title.fs.data"
           , 0};
   Shader_Load(menu->title_shader, vs, fs);
   menu->title_renderer = TextRenderer_Init_With_Shader(menu->title_shader);
