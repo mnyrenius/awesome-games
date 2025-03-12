@@ -119,7 +119,7 @@ void LevelSelection_Render(LevelSelection_t *level_selection)
   TextRenderer_RenderString(level_selection->text_renderer, "-------------------", text_pos, 2.0f);
 
   text_pos[1] = 360.0f;
-  char level_str[2];
+  char level_str[16];
   char time_str[16];
   f32 *highscores = Highscores_GetHighscores(level_selection->highscores);
   i32 view_start = get_view_start(level_selection->current_level);
@@ -152,7 +152,7 @@ void LevelSelection_Render(LevelSelection_t *level_selection)
       text_color[2] = 0.5f;
     }
 
-    sprintf(level_str, "%u", i + 1);
+    sprintf(level_str, "%d", i + 1);
     TextRenderer_RenderString_WithColor(level_selection->text_renderer, level_str, text_pos, 2.0f, text_color);
     text_pos[0] += 70.0f;
     TextRenderer_RenderString_WithColor(level_selection->text_renderer, time_str, text_pos, 2.0f, text_color);

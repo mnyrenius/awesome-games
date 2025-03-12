@@ -56,7 +56,12 @@ static void backtrack_push(Level_Backtrack_t *backtrack, const u32 region[2])
 {
   if (backtrack->index == 9)
   {
-    memcpy(backtrack->regions[0], &backtrack->regions[1], sizeof(u32[2]) * 9);
+    for (u8 i = 0; i < 9; ++i)
+    {
+      backtrack->regions[i][0] = backtrack->regions[i + 1][0];
+      backtrack->regions[i][1] = backtrack->regions[i + 1][1];
+
+    }
     backtrack->regions[9][0] = region[0];
     backtrack->regions[9][1] = region[1];
   }
