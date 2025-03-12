@@ -56,7 +56,7 @@ static void backtrack_push(Level_Backtrack_t *backtrack, const u32 region[2])
 {
   if (backtrack->index == 9)
   {
-    memcpy(&backtrack->regions[0], &backtrack->regions[1], sizeof(u32[2]) * 9);
+    memcpy(backtrack->regions[0], &backtrack->regions[1], sizeof(u32[2]) * 9);
     backtrack->regions[9][0] = region[0];
     backtrack->regions[9][1] = region[1];
   }
@@ -82,7 +82,7 @@ static bool find_region_path(Level_Gen_State_t *state, u32 target_row, u32 targe
 {
   bool found = false;
   u32 current_region[] = {0, 1 + (rand() % REGION_COLS)};
-  Level_Backtrack_t backtrack;
+  Level_Backtrack_t backtrack = {0};
 
   backtrack_init(&backtrack);
 
@@ -292,11 +292,14 @@ static void generate_quads(Level_Quad_t *quads, Level_Gen_State_t *state, u32 ma
 Level_t *Level_Init(void)
 {
   Level_t *level = malloc(sizeof(Level_t));
+  memset(level, 0, sizeof(Level_t));
   level->num_quads = 100 + (rand() % 100);
   level->num_fruits = 5 + (rand() % 25);
   level->max_quads_per_platform = 1 + (rand() % 5);
   level->quads = malloc(sizeof(Level_Quad_t) * level->num_quads);
   level->fruits = malloc(sizeof(Level_Fruit_t) * level->num_fruits);
+  memset(level->quads, 0, level->num_quads);
+  memset(level->fruits, 0, level->num_fruits);
 
   for (u32 i = 0; i < 25; ++i)
   {
@@ -310,7 +313,7 @@ Level_t *Level_Init(void)
   u32 target_col = rand() % REGION_COLS;
   LOG("Target is region (%u, %u)\n", target_row, target_col);
 
-  Level_Gen_State_t gen_state;
+  Level_Gen_State_t gen_state = {0};
   u32 retries = 20;
   while (retries > 0)
   {
