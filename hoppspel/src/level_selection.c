@@ -159,7 +159,7 @@ void LevelSelection_Render(LevelSelection_t *level_selection)
     text_pos[1] += 30.0f;
   }
 
-  const char *author = "Hagaberg Game Studios 2024";
+  const char *author = "Hagaberg Game Studios 2025";
   text_pos[0] = 400.0f - (strlen(author) * 8.0f / 1.5f);
   text_pos[1] = 570.0f;
   TextRenderer_RenderString(level_selection->text_renderer, author, text_pos, 1.5f);
