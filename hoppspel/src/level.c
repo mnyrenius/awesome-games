@@ -352,10 +352,14 @@ Level_t *Level_Init(void)
   for (u32 i = 0; i < level->num_fruits; ++i)
   {
     Level_Quad_t *q = &level->quads[(rand() % (level->num_quads - 26)) + 25];
-    level->fruits[i].quad.position[0] = q->position[0];
-    level->fruits[i].quad.position[1] = q->position[1] - 32.0f;
-    vec2_dup(level->fruits[i].quad.size, (vec2){32.0f, 32.0f});
-    level->fruits[i].taken = false;
+    Level_Fruit_t *f = &level->fruits[i];
+    f->quad.position[0] = q->position[0];
+    f->quad.position[1] = q->position[1] - 32.0f;
+    if (f->quad.position[0] < 0) f->quad.position[0] = 0;
+    if (f->quad.position[0] > (800.0f - 32.0f)) f->quad.position[0] = 800.0f - 32.0f;
+
+    vec2_dup(f->quad.size, (vec2){32.0f, 32.0f});
+    f->taken = false;
   }
 
   level->renderer = SpriteRenderer_Init();
